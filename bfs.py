@@ -10,31 +10,7 @@ faces_data = [
         rb.face(rb.create_matrix(G,G,G,O,O,O,O,O,O))  # 5: Orange
 ]
 
-
-def execute_function_set(node, visited):
-    for p1 in [False, True]:
-        for p2 in [False, True]:
-            rrc = node.rotate_red_column(p1,p2)
-            if rrc not in visited: visited.append(rrc)
-            else: print("alr")
-            rrr = node.rotate_red_row (p1, p2)
-            if rrr not in visited: visited.append(rrr)
-            else: print("alr")
-            rf = node.rotate_face(p1,p2)
-            if rf not in visited: visited.append(rf)
-            else: print("alr")
-
-def main():
-    faces_data_ = [
-        rb.face(rb.create_matrix(B,B,B,R,R,R,R,R,R)), # Red
-        rb.face(rb.create_matrix(R,R,R,G,G,G,G,G,G)), # 1: Green
-        rb.face(rb.create_matrix(Y,Y,Y,Y,Y,Y,Y,Y,Y)), # 2: Yellow
-        rb.face(rb.create_matrix(O,O,O,B,B,B,B,B,B)), # 3: Blue
-        rb.face(rb.create_matrix(W,W,W,W,W,W,W,W,W)), # White
-        rb.face(rb.create_matrix(G,G,G,O,O,O,O,O,O))  # 5: Orange
-]
-
-    faces_data = [
+working = [
         rb.face(rb.create_matrix(W,B,B,R,R,R,R,R,R)), # Red
         rb.face(rb.create_matrix(R,R,R,G,G,Y,G,G,Y)), # 1: Green
         rb.face(rb.create_matrix(B,B,B,Y,Y,Y,Y,Y,Y)), # 2: Yellow
@@ -43,7 +19,32 @@ def main():
         rb.face(rb.create_matrix(G,G,Y,O,O,O,O,O,O))  # 5: Orange
 ]
 
+
+
+
+def execute_function_set(node, visited):
+    for p1 in [False, True]:
+        for p2 in [False, True]:
+            rrc = node.rotate_red_column(p1,p2)
+            if rrc not in visited: visited.append(rrc)
+            rrr = node.rotate_red_row (p1, p2)
+            if rrr not in visited: visited.append(rrr)
+            rf = node.rotate_face(p1,p2)
+            if rf not in visited: visited.append(rf)
+
+def main():
+
+    faces_data = [
+        rb.face(rb.create_matrix(B,B,B,R,R,R,B,B,B)), # Red
+        rb.face(rb.create_matrix(R,R,R,G,G,G,R,R,R)), # 1: Green
+        rb.face(rb.create_matrix(Y,Y,Y,Y,Y,Y,Y,Y,Y)), # 2: Yellow
+        rb.face(rb.create_matrix(O,O,O,B,B,B,O,O,O)), # 3: Blue
+        rb.face(rb.create_matrix(W,W,W,W,W,W,W,W,W)), # White
+        rb.face(rb.create_matrix(G,G,G,O,O,O,G,G,G))  # 5: Orange
+    ]
+
     my_cube = rb.cube(faces_data)
+    my_cube = my_cube.rotate_face(True, True)
     visited_list = [my_cube]
     expanded_list = []
     execute_function_set(my_cube, visited_list)
@@ -51,7 +52,6 @@ def main():
     index = 1
     iteration = 0
     for visited in visited_list:
-        #if iteration > 300: break
         if visited == rb.target:
             print("Target ottenuto")
             expanded_list.append(visited)
@@ -61,6 +61,8 @@ def main():
             expanded_list.append(visited)
             print(f"Insertion in expanded n.{iteration}/{len(visited_list)}")
             index += 1
+        if rb.target in visited_list:
+            print("Target individuato in lista")
         iteration+=1
 
     print("Lista nodi espansi")
