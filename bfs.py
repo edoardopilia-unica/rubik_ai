@@ -32,16 +32,16 @@ def execute_function_set(node):
     new_nodes = set()
     boolean_pairs = list(itertools.product([False, True], repeat=2))
     futures = []
-    # Creiamo l'executor UNA volta sola fuori dal loop
+
+    #threading executor
     with ThreadPoolExecutor(max_workers=12) as executor:
         for p1, p2 in boolean_pairs:
-            # Submit accetta: (nome_funzione, argomento1, argomento2)
-            # Non eseguiamo la funzione qui, passiamo il riferimento!
+
             futures.append(executor.submit(node.rotate_red_column, p1, p2))
             futures.append(executor.submit(node.rotate_red_row, p1, p2))
             futures.append(executor.submit(node.rotate_face, p1, p2))
             
-        # Raccogliamo i risultati man mano che finiscono
+        #esecuzione funzioni
         for future in as_completed(futures):
             result = future.result() # Qui otteniamo il nodo ruotato
             new_nodes.add(result)
@@ -50,23 +50,28 @@ def execute_function_set(node):
 
 def elaborate(queue, iteration, debug=False):
     expanded_list = []
+    visited = set()
     target_iteration = 0
     iteration = 0
+    first_time = True
     while queue:
             current = queue.popleft()
 
             if current not in expanded_list: 
                 new_nodes = execute_function_set(current)
                 for node in new_nodes:
-                    if node not in queue: queue.append(node)
+                    if node not in visited: 
+                        queue.append(node)
+                        visited.add(node)
                 expanded_list.append(current)
                 if current == rb.target:
                     rb.print_cube_state(current, "")
                     return expanded_list, iteration
                 print(f"Insertion in expanded n.{iteration}/{len(queue)}")
-                target_iteration+=1
-            #if rb.target in queue and debug: 
-            #    print(f"Target individuato in lista: {target_iteration}")
+                if (first_time): target_iteration+=1
+            if rb.target in visited and debug: 
+                print(f"Target individuato in lista - Espansione nodo: {target_iteration}")
+                first_time = False
                 
             iteration+=1
 
@@ -87,7 +92,7 @@ def main():
     my_cube = rb.cube(faces_data)
     my_cube = my_cube.rotate_face(False, False)
     my_cube = my_cube.rotate_red_column(True, False)
-    my_cube = my_cube.rotate_red_row(False, False)
+    #my_cube = my_cube.rotate_red_row(False, False)
     #my_cube = my_cube.rotate_red_column(True, False)
     #my_cube = my_cube.rotate_red_column(False, True)
     #my_cube = my_cube.rotate_face(True, False)
