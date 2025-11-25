@@ -15,7 +15,7 @@ O = 'O'
 
 class face:
     center_index = 1
-
+    
     def __init__(self, matrix):
         self.matrix = matrix
         pass
@@ -93,7 +93,7 @@ class cube:
         return_cube = copy.deepcopy(self)
         index =  2 if right else 0
         op_idx = 0 if right else 2
-        if right: return_cube.blue_face.rotate(backward)
+        if right: return_cube.blue_face.rotate(not(backward))
         else: return_cube.green_face.rotate(backward)
 
         if backward:
@@ -118,15 +118,16 @@ class cube:
         else: return_cube.yellow_face.rotate(backward)
 
         if backward:
-            return_cube.red_face.switch_row(index, self.green_face.get_row(index))
-            return_cube.green_face.switch_row(index, self.orange_face.get_row(index))
-            return_cube.orange_face.switch_row(index, self.blue_face.get_row(index))
-            return_cube.blue_face.switch_row(index, self.red_face.get_row(index))
-        else:
             return_cube.red_face.switch_row(index, self.blue_face.get_row(index))
             return_cube.blue_face.switch_row(index, self.orange_face.get_row(index))
             return_cube.orange_face.switch_row(index, self.green_face.get_row(index))
             return_cube.green_face.switch_row(index, self.red_face.get_row(index))
+        else:
+            return_cube.red_face.switch_row(index, self.green_face.get_row(index))
+            return_cube.green_face.switch_row(index, self.orange_face.get_row(index))
+            return_cube.orange_face.switch_row(index, self.blue_face.get_row(index))
+            return_cube.blue_face.switch_row(index, self.red_face.get_row(index))
+
         #del reference_cube
         #gc.collect()
         return return_cube

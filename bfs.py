@@ -9,8 +9,8 @@ import time
 
 class cube_node:
     def __init__(self, current, parent):
-        self.current = current
-        self.parent = parent
+        self.current = current #cubo
+        self.parent = parent #nodo
 
 
 faces_data = [
@@ -84,27 +84,32 @@ def elaborate(queue, debug=False):
 def main():
 
     faces_data = [
-        rb.face(rb.create_matrix(B,B,B,R,R,R,B,B,B)), # 0: Red
-        rb.face(rb.create_matrix(R,R,R,G,G,G,R,R,R)), # 1: Green
-        rb.face(rb.create_matrix(Y,Y,Y,Y,Y,Y,Y,Y,Y)), # 2: Yellow
-        rb.face(rb.create_matrix(O,O,O,B,B,B,O,O,O)), # 3: Blue
-        rb.face(rb.create_matrix(W,W,W,W,W,W,W,W,W)), # 4: White
-        rb.face(rb.create_matrix(G,G,G,O,O,O,G,G,G))  # 5: Orange
+        rb.face(rb.create_matrix(Y,B,Y,Y,R,Y,O,B,O)), # 0: Red
+        rb.face(rb.create_matrix(G,G,R,B,G,R,G,Y,Y)), # 1: Green
+        rb.face(rb.create_matrix(G,Y,G,G,Y,G,W,O,O)), # 2: Yellow
+        rb.face(rb.create_matrix(O,O,B,O,B,G,W,W,B)), # 3: Blue
+        rb.face(rb.create_matrix(Y,R,R,R,W,R,B,W,B)), # 4: White
+        rb.face(rb.create_matrix(W,W,R,O,O,O,W,W,R))  # 5: Orange
     ]
 
     start_time = time.time()
     
 
-    my_cube = rb.cube(faces_data)
-    my_cube = my_cube.rotate_face(False, False)
-    my_cube = my_cube.rotate_red_column(True, False)
-    #my_cube = my_cube.rotate_red_row(False, False)
+    my_cube = rb.create_target()
+    my_cube = my_cube.rotate_red_column(False, True)
+    my_cube = my_cube.rotate_red_row(False, True)
+    my_cube = my_cube.rotate_red_column(False, False)
+    #12my_cube = my_cube.rotate_face(False, False)
+    #my_cube = my_cube.rotate_red_column(True, False)
+    my_cube = my_cube.rotate_red_row(False, False)
     #my_cube = my_cube.rotate_red_column(True, False)
     #my_cube = my_cube.rotate_red_column(False, True)
     #my_cube = my_cube.rotate_face(True, False)
     rb.print_cube_state(my_cube, "Nodo root")
     debug = False
     
+    #if debug: return
+
     root = cube_node(my_cube, None)
 
     iteration = 0
@@ -116,9 +121,9 @@ def main():
 
 
     if debug: print(f"Lista nodi espansi: n. iterazioni: {iteration}")
-    if debug:
-        for node in expanded_list :
-            rb.print_cube_state(node.current, "")
+    #if debug:
+        #for node in expanded_list :
+            #rb.print_cube_state(node.current, "")
     print("-"*60 )
     print(f"Percorso effettuato")
     path = []
