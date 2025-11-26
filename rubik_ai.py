@@ -15,7 +15,7 @@ O = 'O'
 
 class face:
     center_index = 1
-
+    
     def __init__(self, matrix):
         self.matrix = matrix
         pass
@@ -55,9 +55,7 @@ class face:
         return self.matrix[index]
 
     def __eq__(self, other):
-        result = (self.get_row(0) == other.get_row(0) and self.get_row(1) == other.get_row(1) and 
-                  self.get_row(2) == other.get_row(2))
-        #print(result)
+        result = (self.matrix[0] == other.matrix[0] and self.matrix[1] == other.matrix[1] and self.matrix[2] == other.matrix[2])
         return result
     
     def __ne__(self, other):
@@ -66,11 +64,6 @@ class face:
 class cube:
 
     def __eq__(self, other):
-
-        #print("Buongiorno")
-
-        # Se NON è un Cube → meglio restituire False, NON NotImplemented
-        # Questo evita che == cada in altri eq() non desiderati.
         if isinstance(other, type(self)):
             return (
             self.red_face    == other.red_face and
@@ -82,7 +75,6 @@ class cube:
         )
         else: 
             return False
-        
     
     def __ne__(self, other):
             return not self.__eq__(other)
@@ -97,68 +89,71 @@ class cube:
         self.orange_face = faces[5] #orange
   
     def rotate_red_column(self, backward, right):
-        reference_cube = copy.deepcopy(self)
+        #reference_cube = copy.deepcopy(self)
         return_cube = copy.deepcopy(self)
         index =  2 if right else 0
         op_idx = 0 if right else 2
-        if right: return_cube.blue_face.rotate(backward)
+        if right: return_cube.blue_face.rotate(not(backward))
         else: return_cube.green_face.rotate(backward)
 
         if backward:
-            return_cube.red_face.switch_column(index, reference_cube.yellow_face.get_column(index))
-            return_cube.yellow_face.switch_column(index, reference_cube.orange_face.get_column(op_idx)[::-1])
-            return_cube.orange_face.switch_column(op_idx, reference_cube.white_face.get_column(index)[::-1])
-            return_cube.white_face.switch_column(index, reference_cube.red_face.get_column(index))
+            return_cube.red_face.switch_column(index, self.yellow_face.get_column(index))
+            return_cube.yellow_face.switch_column(index, self.orange_face.get_column(op_idx)[::-1])
+            return_cube.orange_face.switch_column(op_idx, self.white_face.get_column(index)[::-1])
+            return_cube.white_face.switch_column(index, self.red_face.get_column(index))
         else:
-            return_cube.red_face.switch_column(index, reference_cube.white_face.get_column(index))
-            return_cube.white_face.switch_column(index, reference_cube.orange_face.get_column(op_idx)[::-1])
-            return_cube.orange_face.switch_column(op_idx, reference_cube.yellow_face.get_column(index)[::-1])
-            return_cube.yellow_face.switch_column(index, reference_cube.red_face.get_column(index))
-        del reference_cube
-        gc.collect()
+            return_cube.red_face.switch_column(index, self.white_face.get_column(index))
+            return_cube.white_face.switch_column(index, self.orange_face.get_column(op_idx)[::-1])
+            return_cube.orange_face.switch_column(op_idx, self.yellow_face.get_column(index)[::-1])
+            return_cube.yellow_face.switch_column(index, self.red_face.get_column(index))
+        #del reference_cube
+        #gc.collect()
         return return_cube
 
     def rotate_red_row(self, backward, up):
-        reference_cube = copy.deepcopy(self)
+        #reference_cube = copy.deepcopy(self)
         return_cube = copy.deepcopy(self)
         index = 0 if up else 2
-        if up: self.white_face.rotate(not(backward))
-        else: self.yellow_face.rotate(backward)
+        if up: return_cube.white_face.rotate(not(backward))
+        else: return_cube.yellow_face.rotate(backward)
 
         if backward:
-            return_cube.red_face.switch_row(index, reference_cube.green_face.get_row(index))
-            return_cube.green_face.switch_row(index, reference_cube.orange_face.get_row(index))
-            return_cube.orange_face.switch_row(index, reference_cube.blue_face.get_row(index))
-            return_cube.blue_face.switch_row(index, reference_cube.red_face.get_row(index))
+            return_cube.red_face.switch_row(index, self.blue_face.get_row(index))
+            return_cube.blue_face.switch_row(index, self.orange_face.get_row(index))
+            return_cube.orange_face.switch_row(index, self.green_face.get_row(index))
+            return_cube.green_face.switch_row(index, self.red_face.get_row(index))
         else:
-            return_cube.red_face.switch_row(index, reference_cube.blue_face.get_row(index))
-            return_cube.blue_face.switch_row(index, reference_cube.orange_face.get_row(index))
-            return_cube.orange_face.switch_row(index, reference_cube.green_face.get_row(index))
-            return_cube.green_face.switch_row(index, reference_cube.red_face.get_row(index))
-        del reference_cube
-        gc.collect()
+            return_cube.red_face.switch_row(index, self.green_face.get_row(index))
+            return_cube.green_face.switch_row(index, self.orange_face.get_row(index))
+            return_cube.orange_face.switch_row(index, self.blue_face.get_row(index))
+            return_cube.blue_face.switch_row(index, self.red_face.get_row(index))
+
+        #del reference_cube
+        #gc.collect()
         return return_cube
 
     def rotate_face(self, red, backward):
-        reference_cube = copy.deepcopy(self)
+        #reference_cube = copy.deepcopy(self)
         return_cube = copy.deepcopy(self)
         index = 2 if red else 0
         op_idx = 0 if red else 2
         if red: return_cube.red_face.rotate(backward)
-        else: return_cube.orange_face.rotate(not(backward))
+        else: 
+            return_cube.orange_face.rotate(not backward)   
 
         if backward:
-            return_cube.white_face.switch_row(index, reference_cube.blue_face.get_column(op_idx))
-            return_cube.blue_face.switch_column(op_idx, reference_cube.yellow_face.get_row(op_idx)[::-1])
-            return_cube.yellow_face.switch_row(op_idx, reference_cube.green_face.get_column(index))
-            return_cube.green_face.switch_column(index, reference_cube.white_face.get_row(index)[::-1])
+            return_cube.white_face.switch_row(index, self.blue_face.get_column(op_idx))
+            return_cube.blue_face.switch_column(op_idx, self.yellow_face.get_row(op_idx)[::-1])
+            return_cube.yellow_face.switch_row(op_idx, self.green_face.get_column(index))
+            return_cube.green_face.switch_column(index, self.white_face.get_row(index)[::-1])
+
         else:
-            return_cube.white_face.switch_row(index, reference_cube.green_face.get_column(index)[::-1])
-            return_cube.green_face.switch_column(index, reference_cube.yellow_face.get_row(op_idx))
-            return_cube.yellow_face.switch_row(op_idx, reference_cube.blue_face.get_column(op_idx)[::-1])
-            return_cube.blue_face.switch_column(op_idx, reference_cube.white_face.get_row(index))
-        del reference_cube
-        gc.collect()
+            return_cube.white_face.switch_row(index, self.green_face.get_column(index)[::-1])
+            return_cube.green_face.switch_column(index, self.yellow_face.get_row(op_idx))
+            return_cube.yellow_face.switch_row(op_idx, self.blue_face.get_column(op_idx)[::-1])
+            return_cube.blue_face.switch_column(op_idx, self.white_face.get_row(index))
+        #del reference_cube
+        #gc.collect()
         return return_cube
     
     def faces(self):
@@ -167,7 +162,21 @@ class cube:
         self.yellow_face,
         self.blue_face,
         self.white_face,
-        self.orange_face] 
+        self.orange_face]
+
+    def __hash__(self):
+        # Convertiamo le matrici (liste di liste) in tuple di tuple per renderle immutabili e "hashabili"
+        def to_tuple(matrix):
+            return tuple(tuple(row) for row in matrix)
+            
+        return hash((
+            to_tuple(self.red_face.matrix),
+            to_tuple(self.green_face.matrix),
+            to_tuple(self.yellow_face.matrix),
+            to_tuple(self.blue_face.matrix),
+            to_tuple(self.white_face.matrix),
+            to_tuple(self.orange_face.matrix)
+        )) 
 
 
    
