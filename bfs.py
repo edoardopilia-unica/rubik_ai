@@ -66,14 +66,16 @@ def elaborate(queue, debug=False):
             current = queue.popleft()
 
             if current not in expanded_list: 
+                expanded_list.append(current)
+                if current.current == rb.target:
+                    return expanded_list, len(expanded_list)
                 new_nodes = execute_function_set(current)
                 for node in new_nodes:
                     if node.current not in visited: 
                         queue.append(node)
                         visited.add(node.current)
-                expanded_list.append(current)
-                if current.current == rb.target:
-                    return expanded_list, len(expanded_list)
+                
+                
                 print(f"Nodo aggiunto agli espansi n.{len(expanded_list)} - Nodi in coda: {len(queue)}")
                 if (first_time): target_iteration+=1
             if rb.target in visited and debug: 
