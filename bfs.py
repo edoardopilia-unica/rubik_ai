@@ -67,17 +67,17 @@ def elaborate(queue, debug=False):
 
             if current not in expanded_list: 
                 expanded_list.append(current)
-                if current.current == rb.target:
+                if current.current == rb.target:              # Valutazione che lo stato corrente corrisponda allo stato desiderato
                     return expanded_list, len(expanded_list)
-                new_nodes = execute_function_set(current)
+                new_nodes = execute_function_set(current)     # Se il nodo attuale non è il goal state, viene espanso
                 for node in new_nodes:
                     if node.current not in visited: 
-                        queue.append(node)
-                        visited.add(node.current)
+                        queue.append(node)                    # I nodi espansi vengono inseriti in coda
+                        visited.add(node.current)             # e nella lista dei nodi visitati
                 
                 
                 print(f"Nodo aggiunto agli espansi n.{len(expanded_list)} - Nodi in coda: {len(queue)}")
-                if (first_time): target_iteration+=1
+                if (first_time): target_iteration+=1          
             if rb.target in visited and debug: 
                 print(f"Target individuato in lista - Espansione nodo: {target_iteration}")
                 first_time = False
@@ -85,6 +85,7 @@ def elaborate(queue, debug=False):
 
 def main():
 
+    # Configurazione iniziale del cubo
     faces_data = [
         rb.face(rb.create_matrix(Y,B,Y,Y,R,Y,O,B,O)), # 0: Red
         rb.face(rb.create_matrix(G,G,R,B,G,R,G,Y,Y)), # 1: Green
@@ -112,10 +113,10 @@ def main():
     
     #if debug: return
 
-    root = cube_node(my_cube, None)
+    root = cube_node(my_cube, None)    # Nodo radice
 
     iteration = 0
-    queue = deque([root])
+    queue = deque([root])              # Inizializzazione della coda col nodo radice
 
     expanded_list, iteration = elaborate(queue, debug)
     
@@ -128,7 +129,7 @@ def main():
             #rb.print_cube_state(node.current, "")
     print("-"*60 )
     print(f"Percorso effettuato")
-    path = []
+    path = []                                        # Creazione della lista che conterrà il percorso della soluzione
     current_node = expanded_list.pop()
     while current_node is not None:
         #rb.print_cube_state(current_node.current, "")
@@ -138,7 +139,8 @@ def main():
     for cube in path[::-1]:
         index = path[::-1].index(cube)
         rb.print_cube_state(cube, f"Nodo {"root" if index == 0 else f"n°{index}"}")
-                            
+        
+    # Analisi prestazioni                        
     print(f"Tempo di elaborazione: {(elab_time-start_time)}. s --- N° nodi espansi: {iteration}")
     print("-"*30 )
     print(f"Consumo memoria")
