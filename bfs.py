@@ -9,25 +9,25 @@ import time
 
 class cube_node:
     def __init__(self, current, parent):
-        self.current = current #cubo
-        self.parent = parent #nodo
+        self.current = current                   # Cubo corrente
+        self.parent = parent                     # Nodo genitore (per risalire al percorso che conduce alla soluzione) 
 
 
 faces_data = [
-        rb.face(rb.create_matrix(B,R,R,B,R,R,B,R,R)), # Red
+        rb.face(rb.create_matrix(B,R,R,B,R,R,B,R,R)), # 0: Red
         rb.face(rb.create_matrix(R,R,W,G,G,W,G,G,W)), # 1: Green
         rb.face(rb.create_matrix(R,G,G,Y,Y,Y,Y,Y,Y)), # 2: Yellow
         rb.face(rb.create_matrix(G,O,O,G,B,B,G,B,B)), # 3: Blue
-        rb.face(rb.create_matrix(W,W,W,W,W,W,O,B,B)), # White
+        rb.face(rb.create_matrix(W,W,W,W,W,W,O,B,B)), # 4: White
         rb.face(rb.create_matrix(G,G,G,O,O,O,O,O,O))  # 5: Orange
 ]
 
 working = [
-        rb.face(rb.create_matrix(W,B,B,R,R,R,R,R,R)), # Red
+        rb.face(rb.create_matrix(W,B,B,R,R,R,R,R,R)), # 0: Red
         rb.face(rb.create_matrix(R,R,R,G,G,Y,G,G,Y)), # 1: Green
         rb.face(rb.create_matrix(B,B,B,Y,Y,Y,Y,Y,Y)), # 2: Yellow
         rb.face(rb.create_matrix(O,O,O,W,B,B,W,B,B)), # 3: Blue
-        rb.face(rb.create_matrix(G,W,W,G,W,W,G,W,W)), # White
+        rb.face(rb.create_matrix(G,W,W,G,W,W,G,W,W)), # 4: White
         rb.face(rb.create_matrix(G,G,Y,O,O,O,O,O,O))  # 5: Orange
 ]
 
@@ -45,25 +45,25 @@ def execute_function_set(node):
     with ThreadPoolExecutor(max_workers=12) as executor:
         for p1, p2 in boolean_pairs:
 
-            futures.append(executor.submit(node.current.rotate_red_column, p1, p2))
-            futures.append(executor.submit(node.current.rotate_red_row, p1, p2))
-            futures.append(executor.submit(node.current.rotate_face, p1, p2))
+            futures.append(executor.submit(node.current.rotate_red_column, p1, p2))  # Rotazioni colonna
+            futures.append(executor.submit(node.current.rotate_red_row, p1, p2))     # Rotazioni riga
+            futures.append(executor.submit(node.current.rotate_face, p1, p2))        # Rotazioni faccia
             
         #esecuzione funzioni
         for future in as_completed(futures):
-            result = future.result() # Qui otteniamo il nodo ruotato
+            result = future.result()                # Qui otteniamo il nodo ruotato
             new_node = cube_node(result, node)
             new_nodes.add(new_node)
 
     return new_nodes
 
 def elaborate(queue, debug=False):
-    expanded_list = []
-    visited = set()
+    expanded_list = []          # Nodi già espansi (nodi interni all'albero di ricerca)
+    visited = set()             # Nodi visitati (nodi interni + nodi foglia)
     target_iteration = 0
     first_time = True
-    while queue:
-            current = queue.popleft()
+    while queue:                                              # Valutazione che la coda non sia vuota
+            current = queue.popleft()                         # Estrazione del primo elemento in coda (nel bfs, il nodo più superficiale)
 
             if current not in expanded_list: 
                 expanded_list.append(current)
