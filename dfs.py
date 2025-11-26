@@ -10,7 +10,8 @@ import time
 class cube_node:
     def __init__(self, current, parent):
         self.current = current                   # Cubo corrente
-        self.parent = parent                     # Nodo genitore (per risalire al percorso che conduce alla soluzione) 
+        self.parent = parent                     # Nodo genitore (per risalire al percorso che conduce alla soluzione)
+        self.depth = 0 if parent is None else parent.depth + 1
 
 
 def execute_function_set(node):
@@ -37,28 +38,31 @@ def execute_function_set(node):
 def elaborate(queue, debug=False):
     expanded_list = []          # Nodi già espansi (nodi interni all'albero di ricerca)
     visited = set()             # Nodi visitati (nodi interni + nodi foglia)
+    blacklist = set()
     target_iteration = 0
     first_time = True
     while queue:                                              # Valutazione che la coda non sia vuota
             current = queue.popleft()                         # Estrazione del primo elemento in coda (nel bfs, il nodo più superficiale)
-
-            if current not in expanded_list: 
+            #int(f"Lunghezza coda: {len(queue)}")
+            if current not in expanded_list and current.depth < 5:
+                print(f"Nodo aggiunto agli espansi n.{len(expanded_list)} - Nodi in coda: {len(queue)} - Profondità: {current.depth}")
+                if (first_time): target_iteration+=1
                 expanded_list.append(current)
                 if current.current == rb.target:
                     return expanded_list, len(expanded_list)
                 new_nodes = execute_function_set(current)
+
                 for node in new_nodes:
-                    if node.current not in visited: 
-                        queue.append(node)
-                        visited.add(node.current)
+                    queue.appendleft(node)
+                    #visited.add(node.current)
                 
                 
-                print(f"Nodo aggiunto agli espansi n.{len(expanded_list)} - Nodi in coda: {len(queue)}")
-                if (first_time): target_iteration+=1
+                
+                
             if rb.target in visited and debug: 
                 print(f"Target individuato in lista - Espansione nodo: {target_iteration}")
                 first_time = False
-                
+    raise Exception("Target non trovato")
 
 def main():
 
@@ -85,7 +89,7 @@ def main():
     #my_cube = my_cube.rotate_red_column(False, True)
     #my_cube = my_cube.rotate_face(True, False)
     rb.print_cube_state(my_cube, "Nodo root")
-    debug = False
+    debug = True
     
     #if debug: return
 
@@ -94,7 +98,11 @@ def main():
     iteration = 0
     queue = deque([root])
 
-    expanded_list, iteration = elaborate(queue, debug)
+    try:    
+        expanded_list, iteration = elaborate(queue, debug)
+    except:
+        print("Target non trovato")
+        return
     
     elab_time = time.time()
 
