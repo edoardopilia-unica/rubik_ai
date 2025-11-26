@@ -14,20 +14,20 @@ class cube_node:
 
 
 faces_data = [
-        rb.face(rb.create_matrix(B,R,R,B,R,R,B,R,R)), # Red
+        rb.face(rb.create_matrix(B,R,R,B,R,R,B,R,R)), # 0: Red
         rb.face(rb.create_matrix(R,R,W,G,G,W,G,G,W)), # 1: Green
         rb.face(rb.create_matrix(R,G,G,Y,Y,Y,Y,Y,Y)), # 2: Yellow
         rb.face(rb.create_matrix(G,O,O,G,B,B,G,B,B)), # 3: Blue
-        rb.face(rb.create_matrix(W,W,W,W,W,W,O,B,B)), # White
+        rb.face(rb.create_matrix(W,W,W,W,W,W,O,B,B)), # 4: White
         rb.face(rb.create_matrix(G,G,G,O,O,O,O,O,O))  # 5: Orange
 ]
 
 working = [
-        rb.face(rb.create_matrix(W,B,B,R,R,R,R,R,R)), # Red
+        rb.face(rb.create_matrix(W,B,B,R,R,R,R,R,R)), # 0: Red
         rb.face(rb.create_matrix(R,R,R,G,G,Y,G,G,Y)), # 1: Green
         rb.face(rb.create_matrix(B,B,B,Y,Y,Y,Y,Y,Y)), # 2: Yellow
         rb.face(rb.create_matrix(O,O,O,W,B,B,W,B,B)), # 3: Blue
-        rb.face(rb.create_matrix(G,W,W,G,W,W,G,W,W)), # White
+        rb.face(rb.create_matrix(G,W,W,G,W,W,G,W,W)), # 4: White
         rb.face(rb.create_matrix(G,G,Y,O,O,O,O,O,O))  # 5: Orange
 ]
 
