@@ -9,8 +9,8 @@ import time
 
 class cube_node:
     def __init__(self, current, parent):
-        self.current = current #cubo
-        self.parent = parent #nodo
+        self.current = current                   # Cubo corrente
+        self.parent = parent                     # Nodo genitore (per risalire al percorso che conduce alla soluzione) 
 
 
 faces_data = [
@@ -45,33 +45,33 @@ def execute_function_set(node):
     with ThreadPoolExecutor(max_workers=12) as executor:
         for p1, p2 in boolean_pairs:
 
-            futures.append(executor.submit(node.current.rotate_red_column, p1, p2))
-            futures.append(executor.submit(node.current.rotate_red_row, p1, p2))
-            futures.append(executor.submit(node.current.rotate_face, p1, p2))
+            futures.append(executor.submit(node.current.rotate_red_column, p1, p2))  # Rotazioni colonna
+            futures.append(executor.submit(node.current.rotate_red_row, p1, p2))     # Rotazioni riga
+            futures.append(executor.submit(node.current.rotate_face, p1, p2))        # Rotazioni faccia
             
         #esecuzione funzioni
         for future in as_completed(futures):
-            result = future.result() # Qui otteniamo il nodo ruotato
+            result = future.result()                # Qui otteniamo il nodo ruotato
             new_node = cube_node(result, node)
             new_nodes.add(new_node)
 
     return new_nodes
 
 def elaborate(queue, debug=False):
-    expanded_list = []
-    visited = set()
+    expanded_list = []          # Nodi già espansi (nodi interni all'albero di ricerca)
+    visited = set()             # Nodi visitati (nodi interni + nodi foglia)
     target_iteration = 0
     first_time = True
-    while queue:
-            current = queue.popleft()
+    while queue:                                              # Valutazione che la coda non sia vuota
+            current = queue.popleft()                         # Estrazione del primo elemento in coda (nel bfs, il nodo più superficiale)
 
             if current not in expanded_list: 
-                new_nodes = execute_function_set(current)
+                new_nodes = execute_function_set(current)     # Espansione del nodo
                 for node in new_nodes:
                     if node.current not in visited: 
-                        queue.append(node)
-                        visited.add(node.current)
-                expanded_list.append(current)
+                        queue.append(node)                    # I nuovi nodi vengono aggiunti alla fine della coda
+                        visited.add(node.current)             # e aggiunti alla lista dei nodi visitati 
+                expanded_list.append(current)                 # Il nodo che è stato espanso viene aggiunto alla lista dei nodi espansi
                 if current.current == rb.target:
                     return expanded_list, len(expanded_list)
                 print(f"Nodo aggiunto agli espansi n.{len(expanded_list)} - Nodi in coda: {len(queue)}")
