@@ -15,7 +15,7 @@ O = 'O'
 
 class face:
     center_index = 1
-    
+    # matrix = [][][]
     def __init__(self, matrix):
         self.matrix = matrix
         pass
