@@ -4,12 +4,12 @@
 import copy
 import gc
 
-G = 'G'
-Y = 'Y'
-W = 'W'
-B = 'B'
-R = 'R'
-O = 'O'
+G = 'G'     # G as 'green'
+Y = 'Y'     # Y as 'yellow'
+W = 'W'     # W as 'white'
+B = 'B'     # B as 'blue'
+R = 'R'     # R ad 'red'
+O = 'O'     # O as 'orange'
 
 
 
@@ -21,11 +21,11 @@ class face:
         pass
     
     def switch_row(self, index, row):
-        if index == self.center_index: return -1 #cannot switch the central row
+        if index == self.center_index: return -1    # cannot switch the central row
         self.matrix[index] = row
     
     def switch_column(self, index, column):
-        if index == self.center_index: return -1 #cannot switch the central column
+        if index == self.center_index: return -1    # cannot switch the central column
         self.matrix[0][index] = column[0]
         self.matrix[1][index] = column[1]
         self.matrix[2][index] = column[2]
@@ -36,12 +36,12 @@ class face:
         row2 = copy.copy(self.matrix[2])
         column0 = copy.copy(self.get_column(0))
         column2 = copy.copy(self.get_column(2))
-        if backward:
+        if backward:                                   # anticlockwise face rotation
             self.switch_column(0, row0[::-1])
             self.switch_row(0, column2)
             self.switch_column(2, row2[::-1])
             self.switch_row(2, column0) 
-        else:
+        else:                                           # clockwise face rotation
             self.switch_row(0, column0[::-1])
             self.switch_column(2, row0)
             self.switch_row(2, column2[::-1])
@@ -51,6 +51,7 @@ class face:
     
     def get_column(self, index):
         return [self.matrix[0][index], self.matrix[1][index], self.matrix[2][index]]
+        
     def get_row(self, index):
         return self.matrix[index]
 
@@ -81,18 +82,20 @@ class cube:
 
 
     def __init__(self, faces):
-        self.red_face = faces[0] #red
-        self.green_face = faces[1] #green
-        self.yellow_face = faces[2] #yellow
-        self.blue_face = faces[3] #blue
-        self.white_face = faces[4] #white
-        self.orange_face = faces[5] #orange
+        self.red_face = faces[0]     #red
+        self.green_face = faces[1]   #green
+        self.yellow_face = faces[2]  #yellow
+        self.blue_face = faces[3]    #blue
+        self.white_face = faces[4]   #white
+        self.orange_face = faces[5]  #orange
+
+    # All rotations refer to the red face
   
     def rotate_red_column(self, backward, right):
         #reference_cube = copy.deepcopy(self)
         return_cube = copy.deepcopy(self)
         index =  2 if right else 0
-        op_idx = 0 if right else 2
+        op_idx = 0 if right else 2       # opposite index for orange face
         if right: return_cube.blue_face.rotate(not(backward))
         else: return_cube.green_face.rotate(backward)
 
@@ -110,7 +113,7 @@ class cube:
         #gc.collect()
         return return_cube
 
-    def rotate_red_row(self, backward, up):
+    def rotate_red_row(self, backward, up):      
         #reference_cube = copy.deepcopy(self)
         return_cube = copy.deepcopy(self)
         index = 0 if up else 2
@@ -181,11 +184,10 @@ class cube:
 
    
 
-def create_matrix_same(symbol):
-    """Crea una matrice 3x3 riempita con un simbolo specifico."""
+def create_matrix_same(symbol):               # creates a matrix whose elements are all equal to 'symbol'
     return [[symbol for _ in range(3)] for _ in range(3)]
 
-def create_target():
+def create_target():                          # creates the desired configuration
     return cube([
         face(create_matrix_same(R)),
          face(create_matrix_same(G)),
@@ -201,8 +203,7 @@ def create_matrix(i11,i12,i13,i21,i22,i23,i31,i32,i33):
 target = create_target()
 
 
-def print_cube_state(c, title=""):
-    """Stampa lo stato attuale delle facce interessate."""
+def print_cube_state(c, title=""):                 #prints actual cube state
     print(f"--- {title} ---")
     print(f"Red (Front):    {c.red_face.matrix}")
     print(f"White (Up):     {c.white_face.matrix}")
@@ -213,24 +214,23 @@ def print_cube_state(c, title=""):
     print("-" * 30)
 
 def main():
-    # 1. Setup: Creiamo le 6 facce con colori distinti
-    # Ordine da tuo codice: red, green, yellow, blue, white, orange
+    # 1. Setup: creating 6 faces
     faces_data = [
-        face(create_matrix(G,R,O,Y,R,Y,B,W,Y)), # Red
+        face(create_matrix(G,R,O,Y,R,Y,B,W,Y)), # 0: Red
         face(create_matrix(R,R,W,O,G,R,Y,Y,Y)), # 1: Green
         face(create_matrix(O,G,G,O,Y,G,G,B,R)), # 2: Yellow
         face(create_matrix(W,W,G,G,B,W,O,O,B)), # 3: Blue
-        face(create_matrix(B,O,O,B,W,B,R,G,B)), # White
+        face(create_matrix(B,O,O,B,W,B,R,G,B)), # 4: White
         face(create_matrix(W,W,W,R,O,B,Y,Y,R))  # 5: Orange
     ]
 
-    # 2. Inizializzazione Cubo
+    # 2. Cube Initialization
     my_cube = cube(faces_data)
 
-    # Mostriamo lo stato iniziale
+    # Printing initial state
     print_cube_state(my_cube, "STATO INIZIALE")
 
-    # 3. Azione: Ruotiamo la colonna DESTRA della faccia Rossa in avanti
+    # 3. Action: Ruotiamo la colonna DESTRA della faccia Rossa in avanti
     # (Questo dovrebbe spostare i pezzi tra Red, White, Orange, Yellow)
     #print(">>> Eseguo: rotate_red_column(backward=False, right=True)")
     #my_cube.rotate_red_row(backward, up)       
@@ -238,7 +238,7 @@ def main():
     #my_cube.rotate_face(red, backward)
 
     my_cube.rotate_red_column(False, False)
-    # 4. Verifica
+    # 4. Checking final state
     print_cube_state(my_cube, "STATO DOPO ROTAZIONE")
 
     #print(">>> Eseguo: rotate_red_column(backward=False, right=True)")
