@@ -4,27 +4,24 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import itertools
 from collections import deque
 from pympler import asizeof
+from rubik_ai import cube_node
 
 import time
 
-class cube_node:
-    def __init__(self, current, parent):
-        self.current = current                   # Cubo corrente
-        self.parent = parent                     # Nodo genitore (per risalire al percorso che conduce alla soluzione) 
 
 
 def execute_function_set(node):
     new_nodes = set()
-    boolean_pairs = list(itertools.product([False, True], repeat=2))
+    boolean_pairs = list(itertools.product([False, True], repeat=3))
     futures = []
 
     #threading executor
     with ThreadPoolExecutor(max_workers=12) as executor:
-        for p1, p2 in boolean_pairs:
+        for p1, p2, p3 in boolean_pairs:
 
-            futures.append(executor.submit(node.current.rotate_red_column, p1, p2))  # Rotazioni colonna
-            futures.append(executor.submit(node.current.rotate_red_row, p1, p2))     # Rotazioni riga
-            futures.append(executor.submit(node.current.rotate_face, p1, p2))        # Rotazioni faccia
+            futures.append(executor.submit(node.current.rotate_red_column, p1, p2, p3))  # Rotazioni colonna
+            futures.append(executor.submit(node.current.rotate_red_row, p1, p2, p3))     # Rotazioni riga
+            futures.append(executor.submit(node.current.rotate_face, p1, p2, p3))        # Rotazioni faccia
             
         #esecuzione funzioni
         for future in as_completed(futures):
@@ -77,12 +74,13 @@ def main():
     my_cube = rb.create_target()
     my_cube = my_cube.rotate_red_column(False, True)
     my_cube = my_cube.rotate_red_row(False, True)
-    my_cube = my_cube.rotate_red_column(False, False)
-    #12my_cube = my_cube.rotate_face(False, False)
-    my_cube = my_cube.rotate_red_column(False, False)
+    #my_cube = my_cube.rotate_red_column(False, False)
+    my_cube = my_cube.rotate_face(False, False, True)
+    #my_cube = my_cube.rotate_red_column(False, False)
     #my_cube = my_cube.rotate_red_row(False, False)
-    #my_cube = my_cube.rotate_red_column(True, False)
-    #my_cube = my_cube.rotate_red_column(False, True)
+    #my_cube = my_cube.rotate_red_column(True, True)    
+    #my_cube = my_cube.rotate_red_column(False, True, True)
+    #my_cube = my_cube.rotate_red_column(False, False)
     #my_cube = my_cube.rotate_face(True, False)
     rb.print_cube_state(my_cube, "Nodo root")
     debug = False
