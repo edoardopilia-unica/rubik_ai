@@ -2,7 +2,6 @@
 # authors Edoardo Pilia & Alessia Congia
 
 import copy
-import gc
 
 G = 'G'     # G as 'green'
 Y = 'Y'     # Y as 'yellow'
@@ -15,9 +14,9 @@ O = 'O'     # O as 'orange'
 
 class face:
     center_index = 1
-    # matrix = [][][]
+
     def __init__(self, matrix):
-        self.matrix = matrix
+        self.matrix = matrix                        # describing each face as a matrix
         pass
     
     def switch_row(self, index, row):
@@ -92,7 +91,6 @@ class cube:
     # All rotations refer to the red face
   
     def rotate_red_column(self, backward, right):
-        #reference_cube = copy.deepcopy(self)
         return_cube = copy.deepcopy(self)
         index =  2 if right else 0
         op_idx = 0 if right else 2       # opposite index for orange face
@@ -109,12 +107,9 @@ class cube:
             return_cube.white_face.switch_column(index, self.orange_face.get_column(op_idx)[::-1])
             return_cube.orange_face.switch_column(op_idx, self.yellow_face.get_column(index)[::-1])
             return_cube.yellow_face.switch_column(index, self.red_face.get_column(index))
-        #del reference_cube
-        #gc.collect()
         return return_cube
 
     def rotate_red_row(self, backward, up):      
-        #reference_cube = copy.deepcopy(self)
         return_cube = copy.deepcopy(self)
         index = 0 if up else 2
         if up: return_cube.white_face.rotate(not(backward))
@@ -130,13 +125,9 @@ class cube:
             return_cube.green_face.switch_row(index, self.orange_face.get_row(index))
             return_cube.orange_face.switch_row(index, self.blue_face.get_row(index))
             return_cube.blue_face.switch_row(index, self.red_face.get_row(index))
-
-        #del reference_cube
-        #gc.collect()
         return return_cube
 
     def rotate_face(self, red, backward):
-        #reference_cube = copy.deepcopy(self)
         return_cube = copy.deepcopy(self)
         index = 2 if red else 0
         op_idx = 0 if red else 2
@@ -155,8 +146,6 @@ class cube:
             return_cube.green_face.switch_column(index, self.yellow_face.get_row(op_idx))
             return_cube.yellow_face.switch_row(op_idx, self.blue_face.get_column(op_idx)[::-1])
             return_cube.blue_face.switch_column(op_idx, self.white_face.get_row(index))
-        #del reference_cube
-        #gc.collect()
         return return_cube
     
     def faces(self):
@@ -228,21 +217,16 @@ def main():
     my_cube = cube(faces_data)
 
     # Printing initial state
-    print_cube_state(my_cube, "STATO INIZIALE")
+    print_cube_state(my_cube, "INITIAL STATE")
 
-    # 3. Action: Ruotiamo la colonna DESTRA della faccia Rossa in avanti
-    # (Questo dovrebbe spostare i pezzi tra Red, White, Orange, Yellow)
-    #print(">>> Eseguo: rotate_red_column(backward=False, right=True)")
+    # 3. Action
     #my_cube.rotate_red_row(backward, up)       
     #my_cube.rotate_red_column(backward, right)
     #my_cube.rotate_face(red, backward)
-
     my_cube.rotate_red_column(False, False)
+    
     # 4. Checking final state
-    print_cube_state(my_cube, "STATO DOPO ROTAZIONE")
-
-    #print(">>> Eseguo: rotate_red_column(backward=False, right=True)")
-    #my_cube.rotate_red_row(backward=False, up=True)
+    print_cube_state(my_cube, "STATE AFTER ROTATION")
 
 if __name__ == "___main___":
     main()
