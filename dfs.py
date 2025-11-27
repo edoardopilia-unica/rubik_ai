@@ -37,12 +37,12 @@ def elaborate(queue, debug=False):
     expanded = set()
     target_iteration = 0
     first_time = True
-    branch_counter = 0
     while queue:                                              # Valutazione che la coda non sia vuota
             current = queue.popleft()                         # Estrazione del primo elemento in coda (nel bfs, il nodo più superficiale)
             #int(f"Lunghezza coda: {len(queue)}")
             if current not in expanded and current.depth < 4:
-                print(f"Nodo aggiunto agli espansi n.{len(expanded_list)} - Nodi in coda: {len(queue)} - Profondità: {current.depth}")
+                size_mb = {asizeof.asizeof(expanded_list)/1000000}
+                print(f"{"!!! Dimensione coda: {size_mb} > 100 MB !!! " if size_mb > 100 else ""}Nodo aggiunto agli espansi n.{len(expanded_list)} - Nodi in coda: {len(queue)} - Profondità: {current.depth}")
                 if (first_time): target_iteration+=1
                 expanded_list.append(current)
                 expanded.add(current.current)
@@ -78,10 +78,8 @@ def main():
 
     my_cube = rb.create_target()
     my_cube = my_cube.rotate_red_column(False, True)
-    my_cube = my_cube.rotate_red_row(False, True)
-    #my_cube = my_cube.rotate_red_column(False, False)
-    #my_cube = my_cube.rotate_face(False, False, True)
-    #my_cube = my_cube.rotate_red_column(False, False)
+    my_cube = my_cube.rotate_red_row(False, True, True)
+    my_cube = my_cube.rotate_red_column(False, False)
     #my_cube = my_cube.rotate_red_row(False, False)
     #my_cube = my_cube.rotate_red_column(True, True)    
     #my_cube = my_cube.rotate_red_column(False, True, True)

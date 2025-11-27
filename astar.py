@@ -42,18 +42,19 @@ def elaborate(queue, debug=False):
     while queue:                                              # Valutazione che la coda non sia vuota
             current = heapq.heappop(queue)                      # Estrazione del primo elemento in coda (nel bfs, il nodo più superficiale)
             #int(f"Lunghezza coda: {len(queue)}")
-            if current.current not in expanded and current.depth < 5:
-                print(f"Nodo aggiunto agli espansi n.{len(expanded_list)} - Nodi in coda: {len(queue)} - Profondità: {current.depth} - Euristica: {current.cube_heuristic()}")
+            if current.current not in expanded and current.depth < 21:
+                size_mb = {asizeof.asizeof(expanded_list)/1000000}
+                print(f"{"!!! Dimensione coda: {size_mb} > 100 MB !!! " if size_mb > 100 else ""}Nodo aggiunto agli espansi n.{len(expanded_list)} - Nodi in coda: {len(queue)} - Profondità: {current.depth} - Euristica: {current.cube_heuristic()}")
                 if (first_time): target_iteration+=1
                 expanded_list.append(current)
                 expanded.add(current.current)
-                if current.cube_heuristic() == 24: rb.print_cube_state(current.current)
+                #if current.cube_heuristic() == 24: rb.print_cube_state(current.current)
                 if current.current == rb.target:
                     return expanded_list, len(expanded_list)
                 new_nodes = execute_function_set(current)
 
                 for node in new_nodes:
-                    heapq.heappush(queue, node)
+                    if node not in queue: heapq.heappush(queue, node)
                     #.appendleft(node)
                     #visited.add(node.current)
                 
@@ -78,14 +79,13 @@ def main():
     my_cube = my_cube.rotate_red_column(False, True)
     my_cube = my_cube.rotate_red_row(False, True, True)
     my_cube = my_cube.rotate_red_column(False, False)
-    my_cube = my_cube.rotate_face(False, False, True)
-    #my_cube = my_cube.rotate_red_column(False, False)
-    #my_cube = my_cube.rotate_red_row(False, False)
-    #my_cube = my_cube.rotate_red_column(True, True)    
-    #my_cube = my_cube.rotate_red_column(False, True, True)
-    #my_cube = my_cube.rotate_red_column(False, False)
-    #my_cube = my_cube.rotate_face(True, False)
-    rb.print_cube_state(my_cube, "Nodo root")
+    my_cube = my_cube.rotate_red_column(False, True, True)
+    my_cube = my_cube.rotate_red_column(False, False)
+    my_cube = my_cube.rotate_red_column(False, True)
+    my_cube = my_cube.rotate_red_row(False, True, True)
+
+    
+
     debug = True
     
     #if debug: return
@@ -108,7 +108,7 @@ def main():
     elab_time = time.time()
         
 
-    if debug: print(f"Lista nodi espansi: n. iterazioni: {iteration} s")
+    #if debug: print(f"Lista nodi espansi: n. iterazioni: {iteration} s")
     #if debug:
         #for node in expanded_list :
             #rb.print_cube_state(node.current, "")
