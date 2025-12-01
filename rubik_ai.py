@@ -5,23 +5,24 @@ import copy
 import heapq
 
 
-G = 'G'
-Y = 'Y'
-W = 'W'
-B = 'B'
-R = 'R'
-O = 'O'
+G = 'G'   # G as 'green'
+Y = 'Y'   # Y as 'yellow'
+W = 'W'   # W as 'white'
+B = 'B'   # B as 'blue'
+R = 'R'   # R as 'red'
+O = 'O'   # O as 'orange'
 
 
-
+# This class describes each face as a 3x3 matrix of symbols
 class face:
     center_index = 1
-    # matrix = [][][]
+    
     def __init__(self, matrix):
         self.matrix = matrix
         self.color = matrix[1][1]
         pass
-    
+        
+    #
     def switch_row(self, index, row):
         if index == self.center_index: return -1 #cannot switch the central row
         self.matrix[index] = row
