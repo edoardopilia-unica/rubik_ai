@@ -1,130 +1,89 @@
-import rubik_ai as rb
-from rubik_ai import G,R,O,Y,B,W
-from concurrent.futures import ThreadPoolExecutor, as_completed
-import itertools
-from collections import deque
-from pympler import asizeof
-
-from rubik_ai import cube_node
 import time
 import heapq
-
-def execute_function_set(node):
-    new_nodes = set()
-    boolean_pairs = list(itertools.product([False, True], repeat=3))
-    futures = []
-
-    #threading executor
-    with ThreadPoolExecutor(max_workers=12) as executor:
-        for p1, p2, p3 in boolean_pairs:
-
-            futures.append(executor.submit(node.current.rotate_red_column, p1, p2, p3))  # Rotazioni colonna
-            futures.append(executor.submit(node.current.rotate_red_row, p1, p2, p3))     # Rotazioni riga
-            futures.append(executor.submit(node.current.rotate_face, p1, p2, p3))        # Rotazioni faccia
-            
-        #esecuzione funzioni
-        for future in as_completed(futures):
-            result = future.result()                # Qui otteniamo il nodo ruotato
-            new_node = cube_node(result, node)
-            new_nodes.add(new_node)
-
-    return new_nodes
+import rubik_ai as rb
+from rubik_ai import cube_node, execute_function_set
+from pympler import asizeof
 
 
+DEPTH_LIMIT = 21        # Depth Limit (Recommended max. 5)
+MEMORY_ALERT = 10e+9    # 1 GB
 
-def elaborate(queue, debug=False):    
-    expanded_list = []          # Nodi già espansi (nodi interni all'albero di ricerca)
-    visited = set()             # Nodi visitati (nodi interni + nodi foglia)
-    expanded = set()
-    #blacklist = set()
-    target_iteration = 0
-    first_time = True
-    while queue:                                              # Valutazione che la coda non sia vuota
-            current = heapq.heappop(queue)                      # Estrazione del primo elemento in coda (nel bfs, il nodo più superficiale)
-            #int(f"Lunghezza coda: {len(queue)}")
-            if current.current not in expanded and current.depth < 21:
-                size_mb = {asizeof.asizeof(expanded_list)/1000000}
-                print(f"{"!!! Dimensione coda: {size_mb} > 100 MB !!! " if size_mb > 100 else ""}Nodo aggiunto agli espansi n.{len(expanded_list)} - Nodi in coda: {len(queue)} - Profondità: {current.depth} - Euristica: {current.cube_heuristic()}")
-                if (first_time): target_iteration+=1
-                expanded_list.append(current)
-                expanded.add(current.current)
-                #if current.cube_heuristic() == 24: rb.print_cube_state(current.current)
+
+def elaborate(queue):    
+    expanded_list = []          # List of expanded nodes
+    expanded = set()            # Used to avoid re-iteration of the list while checking if a node was already been expanded. In addition, expanded list performs a check
+                                # also over the parent node, while expanded takes into account only the cube.
+
+    visited = set()             # Used to avoid to re-add elements in the queue.
+
+    while queue:                                              
+            current = heapq.heappop(queue)                      # First element in the queue
+
+            if current.current not in expanded and current.depth < DEPTH_LIMIT: # Verifies if a node was already expanded of it it over the depth limit
+
+                size = asizeof.asizeof(expanded_list)/MEMORY_ALERT             # Just an alert if the elaboration is taking too much memory
+
+                print(f"{"!!! Dimensione coda: {size} > 1 GB !!! " if size > 1 \
+                         else "" } Nodo aggiunto agli espansi n.{len(expanded_list)} - Nodi in coda: {len(queue)} - Profondità: {current.depth\
+                            } - Euristica: {current.cube_heuristic()}")
+
+                expanded_list.append(current)   # Adds the current node to the expanded list
+                expanded.add(current.current)   # Adds the current cube to the expanded set
+                
                 if current.current == rb.target:
-                    return expanded_list, len(expanded_list)
-                new_nodes = execute_function_set(current)
+                    return expanded_list        # Returns the list of expanded nodes
+                
+                new_nodes = execute_function_set(current)       # Execute the function set to obtain all the possible nodes
 
                 for node in new_nodes:
-                    if node not in queue: heapq.heappush(queue, node)
-                    #.appendleft(node)
-                    #visited.add(node.current)
-                
-    raise Exception("Target non trovato")
+                    if node.current not in visited:
+                        heapq.heappush(queue, node) # Adds the new node in the queue, ordered by the the heuristic + length
+                        visited.add(node.current)
+            
+    return None # Return None a target is not found. A* is complete and optimal, if this happens most probably the configuration of the cube is not valid.
 
 
 def main():
 
-    faces_data = [
-        rb.face(rb.create_matrix(Y,B,Y,Y,R,Y,O,B,O)), # 0: Red
-        rb.face(rb.create_matrix(G,G,R,B,G,R,G,Y,Y)), # 1: Green
-        rb.face(rb.create_matrix(G,Y,G,G,Y,G,W,O,O)), # 2: Yellow
-        rb.face(rb.create_matrix(O,O,B,O,B,G,W,W,B)), # 3: Blue
-        rb.face(rb.create_matrix(Y,R,R,R,W,R,B,W,B)), # 4: White
-        rb.face(rb.create_matrix(W,W,R,O,O,O,W,W,R))  # 5: Orange
-    ]
-
     start_time = time.time()
     
-
-    my_cube = rb.create_target()
+    # List of operations to scramble the cube
+    my_cube = rb.cube.create_target()
     my_cube = my_cube.rotate_red_column(False, True)
     my_cube = my_cube.rotate_red_row(False, True, True)
     my_cube = my_cube.rotate_red_column(False, False)
     my_cube = my_cube.rotate_red_column(False, True, True)
-    my_cube = my_cube.rotate_red_column(False, False)
-    my_cube = my_cube.rotate_red_column(False, True)
-    my_cube = my_cube.rotate_red_row(False, True, True)
-
-    
-
-    debug = True
-    
-    #if debug: return
+    #my_cube = my_cube.rotate_red_column(False, False)
+    #my_cube = my_cube.rotate_red_column(False, True)
+    #my_cube = my_cube.rotate_red_row(False, True, True)
 
     root = cube_node(my_cube, None)
 
-    iteration = 0
     queue = [root]
-    #heapq._heapify_max(queue)
-    #heapify_max(queue)
+  
+    expanded_list = elaborate(queue)
 
-
-    try:    
-        expanded_list, iteration = elaborate(queue, debug)
-    except:
-        print("Target non trovato")
-        elab_time = time.time()
-        print(f"Tempo di elaborazione: {(elab_time-start_time)}")
-        return
     elab_time = time.time()
-        
+    print("-"*30 )
 
-    #if debug: print(f"Lista nodi espansi: n. iterazioni: {iteration} s")
-    #if debug:
-        #for node in expanded_list :
-            #rb.print_cube_state(node.current, "")
-    print("-"*60 )
-    print(f"Percorso effettuato")
-    path = []
-    current_node = expanded_list.pop()
-    while current_node is not None:
-        #rb.print_cube_state(current_node.current, "")
-        path.append(current_node.current)
-        current_node = current_node.parent
+
+    if expanded_list is None:
+        print("Target non trovato")
+    else:
+        iteration = len(expanded_list)
+        print(f"Percorso effettuato")
+        path = []
+        current_node = expanded_list.pop()
+        while current_node is not None:
+
+            path.append(current_node.current)
+            current_node = current_node.parent
     
-    for cube in path[::-1]:
-        index = path[::-1].index(cube)
-        rb.print_cube_state(cube, f"Nodo {"root" if index == 0 else f"n°{index}"}")
-                            
+        for cube in path[::-1]:
+            index = path[::-1].index(cube)
+            cube.print(f"Nodo {"root" if index == 0 else f"n°{index}"}")
+
+    print("-"*30 )                       
     print(f"Tempo di elaborazione: {(elab_time-start_time)}. s --- N° nodi espansi: {iteration}")
     print("-"*30 )
     print(f"Consumo memoria")
@@ -132,3 +91,4 @@ def main():
 
 if __name__=="__main__":
     main()
+
