@@ -34,8 +34,8 @@ def elaborate(queue):
                 for node in new_nodes:
 
                     if node.current not in visited: 
-                        queue.append(node)
-                        visited.add(node.current)
+                        queue.append(node)                    # I nodi espansi vengono inseriti in coda
+                        visited.add(node.current)             # e nella lista dei nodi visitati
                 
     return None # Return None a target is not found. BFS is complete, if this happens most probably the configuration of the cube is not valid.
 
@@ -53,7 +53,7 @@ def main():
 
 
     iteration = 0
-    queue = deque([root])
+    queue = deque([root])              # Inizializzazione della coda col nodo radice
 
     expanded_list = elaborate(queue)
 

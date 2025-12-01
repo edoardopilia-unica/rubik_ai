@@ -82,12 +82,12 @@ class face:
         row2 = copy.copy(self.matrix[2])
         column0 = copy.copy(self.get_column(0))
         column2 = copy.copy(self.get_column(2))
-        if backward:
+        if backward:                                   # anticlockwise face rotation
             self.switch_column(0, row0[::-1])
             self.switch_row(0, column2)
             self.switch_column(2, row2[::-1])
             self.switch_row(2, column0) 
-        else:
+        else:                                           # clockwise face rotation
             self.switch_row(0, column0[::-1])
             self.switch_column(2, row0)
             self.switch_row(2, column2[::-1])
@@ -169,7 +169,7 @@ class cube:
         return_cube = copy.deepcopy(self)
 
         index =  2 if right else 0
-        op_idx = 0 if right else 2
+        op_idx = 0 if right else 2       # opposite index for orange face
         if right: return_cube.blue_face.rotate(not(backward))
         else: return_cube.green_face.rotate(backward)
 
