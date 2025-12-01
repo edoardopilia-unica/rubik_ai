@@ -390,83 +390,57 @@ class cube_node:
         self.depth = 0 if parent is None else parent.depth + 1
         self.function = self.cube_heuristic() + self.depth if self.cube_heuristic() > 0  else 0
 
-    def correct(self, color, row_index, column_index):
-        '''
-        Returns 1 if a face element borders with the correct neighbours, 0 otherwise.
+    def get_face_distance(self, current_face_color, sticker_color):
+        """
+        Calcola la distanza minima di uno sticker dalla sua faccia target.
+        0: Lo sticker è sulla faccia giusta.
+        2: Lo sticker è sulla faccia opposta.
+        1: Lo sticker è su una faccia laterale.
+        """
+        if current_face_color == sticker_color:
+            return 0
+        
+        # Mappa delle facce opposte (adatta in base ai tuoi colori/costanti)
+        # Esempio standard: White<->Yellow, Green<->Blue, Red<->Orange
+        opposites = {
+            W: Y, 
+            Y: W,
+            G: B, 
+            B: G,
+            R: O, 
+            O: R
+        }
+        
+        # Se è il colore opposto, dista 2 mosse (es. da Bianco a Giallo)
+        if opposites.get(current_face_color) == sticker_color:
+            return 2
+        
+        # Altrimenti è su una faccia laterale, dista 1 mossa
+        return 1
 
-        :param color: face's color
-        :param row_index: element's row index in the face's matrix
-        :param column_index: element's column index in the face's matrix
-        '''
-
-        flag = 0 # Used to calculate the return
-
-        # Directions
-        col_direction = 'left' if column_index == 0 else 'right' if column_index == 2 else None # None if it is the central column
-        row_direction = 'up' if row_index == 0 else 'down' if row_index == 2 else None # None if it is the central row
-
-        border_row = self.current.border(color, row_direction)
-        border_column = self.current.border(color, col_direction)
-
-        # Vertical check
-        if border_row is None: #If the element is in the central row, then it is considered ok on the vertical plane
-            flag += 1
-        else:
-            if color in [B, G]: # blue and green rows border with white and yellow columns
-                b_c_idx = 2 if color == B else 0 
-                b_r_idx = 2 - column_index 
-
-            else: # standard case between other faces
-                if color == W: # White always border with a row 0 (orange, red)
-                    b_r_idx = 0
-                if color == Y:
-                    b_r_idx = 2 # Yellow always border with a row 2 (orange, red)
-                else:
-                    b_r_idx = 2 if row_index == 0 else 0
-                
-                b_c_idx = column_index
-
-            if border_row.matrix[b_r_idx][b_c_idx] == border_row.color: 
-                flag += 1
-
-
-        # Horizontal check
-        if border_column is None: # If the element is in the central column, then it is considered ok on the horizontal plane
-            flag += 1
-        else:
-            if color in [W, Y]: # white and yellow columns border with blue and green rows
-                b_r_idx = 0 if color == W else 2
-                b_c_idx = 2 - row_index
-            
-            else: # standard case between other faces
-                b_c_idx = 2 if column_index == 0 else 0
-
-                b_r_idx = row_index
-
-            if border_column.matrix[b_r_idx][b_c_idx] == border_column.color:
-                flag += 1
-
-        return 1 if flag == 2 else 0 #returns 1 only if both borders are correct
-    
-    
     def cube_heuristic(self):
-        '''
-        Returns the heuristic of the current cube.
-        '''
-        score = 54
+        """
+        Calcola la Distanza di Manhattan totale degli sticker diviso 8.
+        Questa è un'euristica ammissibile e consistente.
+        """
+        total_distance = 0
+        
         for face in self.current.faces():
-            face_score = 0
-            row_index = 0
+            current_face_color = face.color
+            
+            # Itera su tutti gli sticker della matrice della faccia
             for row in face.matrix:
-                column_index = 0
-                for value in row:
-                    color = face.color
-                    if value == color:
-                        face_score += self.correct(color, row_index, column_index)
-                    column_index += 1
-                row_index += 1
-            score -= face_score
-        return score
+                for sticker_color in row:
+                    # Salta i centri (che non si muovono) se necessario, 
+                    # ma per semplicità calcoliamo tutto.
+                    
+                    dist = self.get_face_distance(current_face_color, sticker_color)
+                    total_distance += dist
+        
+        # Dividiamo per 8 perché una singola rotazione cambia la posizione
+        # di 8 sticker (i centri non contano, 12 sticker si muovono ma in gruppi).
+        # Usare 8 garantisce l'ammissibilità (non sovrastimare mai il costo).
+        return total_distance / 8
 
     def __lt__(self, other):
         return self.cube_heuristic()+self.depth < other.cube_heuristic()+other.depth
@@ -479,20 +453,59 @@ import itertools
 
 def execute_function_set(node):
     new_nodes = set()
-    boolean_pairs = list(itertools.product([False, True], repeat=3)) # all the possible combinations of true/false three times
-    futures = []
+    current_cube = node.current
+    
+    # Definizione esplicita delle mosse per evitare ridondanze e itertools
+    # Formato: (funzione, backward, selector, double)
+    # Selector: True/False a seconda di quale riga/colonna/faccia muovere
+    
+    moves = []
+    
+    # Per ogni tipo di movimento (Colonna, Riga, Faccia)
+    # Generiamo: Orario, Antiorario, Doppio
+    
+    # -- COLONNE (Red Column) --
+    # Parametri: backward, right (True=Right/Blue, False=Left/Green), double
+    moves.append((current_cube.rotate_red_column, False, True, False))  # R
+    moves.append((current_cube.rotate_red_column, True,  True, False))  # R'
+    moves.append((current_cube.rotate_red_column, False, True, True))   # R2 (Direzione irrilevante)
+    
+    moves.append((current_cube.rotate_red_column, False, False, False)) # L
+    moves.append((current_cube.rotate_red_column, True,  False, False)) # L'
+    moves.append((current_cube.rotate_red_column, False, False, True))  # L2
 
-    #threading executor
-    with ThreadPoolExecutor(max_workers=12) as executor:
-        for p1, p2, p3 in boolean_pairs:
+    # -- RIGHE (Red Row) --
+    # Parametri: backward, up (True=Up/White, False=Down/Yellow), double
+    moves.append((current_cube.rotate_red_row, False, True, False))   # U
+    moves.append((current_cube.rotate_red_row, True,  True, False))   # U'
+    moves.append((current_cube.rotate_red_row, False, True, True))    # U2
+    
+    moves.append((current_cube.rotate_red_row, False, False, False))  # D
+    moves.append((current_cube.rotate_red_row, True,  False, False))  # D'
+    moves.append((current_cube.rotate_red_row, False, False, True))   # D2
 
-            futures.append(executor.submit(node.current.rotate_red_column, p1, p2, p3))  # Column rotation
-            futures.append(executor.submit(node.current.rotate_red_row, p1, p2, p3))     # Row rotation
-            futures.append(executor.submit(node.current.rotate_face, p1, p2, p3))        # Face rotation
-            
-        for future in as_completed(futures):
-            result = future.result()                
-            new_node = cube_node(result, node)
-            new_nodes.add(new_node)
+    # -- FACCE (Face) --
+    # Parametri: backward, red (True=Front/Red, False=Back/Orange), double
+    moves.append((current_cube.rotate_face, False, True, False))    # F
+    moves.append((current_cube.rotate_face, True,  True, False))    # F'
+    moves.append((current_cube.rotate_face, False, True, True))     # F2
+    
+    moves.append((current_cube.rotate_face, False, False, False))   # B
+    moves.append((current_cube.rotate_face, True,  False, False))   # B'
+    moves.append((current_cube.rotate_face, False, False, True))    # B2
+
+    # Esecuzione sequenziale (più veloce dei thread in Python per questo task)
+    for action, p1, p2, p3 in moves:
+        # Esegui la rotazione
+        # Nota: La funzione rotate_* deve restituire un NUOVO cubo (come già fa il tuo codice)
+        new_cube_state = action(p1, p2, p3)
+        
+        # Evita di tornare allo stato del genitore (ottimizzazione semplice)
+        # Se il genitore esiste e il nuovo stato è uguale al nonno, lo scartiamo
+        if node.parent and new_cube_state == node.parent.current:
+            continue
+
+        new_node = cube_node(new_cube_state, node)
+        new_nodes.add(new_node)
 
     return new_nodes

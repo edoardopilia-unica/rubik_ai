@@ -49,13 +49,15 @@ def main():
     
     # List of operations to scramble the cube
     my_cube = rb.cube.create_target()
-    my_cube = my_cube.rotate_red_column(False, True)
-    my_cube = my_cube.rotate_red_row(False, True, True)
-    my_cube = my_cube.rotate_red_column(False, False)
-    my_cube = my_cube.rotate_red_column(False, True, True)
-    #my_cube = my_cube.rotate_red_column(False, False)
-    #my_cube = my_cube.rotate_red_column(False, True)
-    #my_cube = my_cube.rotate_red_row(False, True, True)
+
+    my_cube = my_cube.rotate_red_row(False, True, False)     # Riga alta
+    my_cube = my_cube.rotate_red_column(True, True, False)   # Colonna destra
+    my_cube = my_cube.rotate_face(False, True, True)         # Faccia rossa (doppia)
+    my_cube = my_cube.rotate_red_row(True, False, False)     # Riga bassa
+    my_cube = my_cube.rotate_red_column(False, False, True)  # Colonna sinistra (doppia)
+    my_cube = my_cube.rotate_face(True, False, False)        # Faccia arancione
+    my_cube = my_cube.rotate_red_row(False, True, True)      # Riga alta (doppia)
+    my_cube = my_cube.rotate_red_column(True, True, False)   # Colonna destra
 
     root = cube_node(my_cube, None)
 
