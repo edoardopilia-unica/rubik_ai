@@ -1,133 +1,83 @@
-import rubik_ai as rb
-from rubik_ai import G,R,O,Y,B,W
-from concurrent.futures import ThreadPoolExecutor, as_completed
-import itertools
-from collections import deque
-from pympler import asizeof
-
 import time
+import rubik_ai as rb
+from rubik_ai import cube_node, execute_function_set
+from pympler import asizeof
+from collections import deque
 
-class cube_node:
-    def __init__(self, current, parent):
-        self.current = current                   # Cubo corrente
-        self.parent = parent                     # Nodo genitore (per risalire al percorso che conduce alla soluzione)
-        self.depth = 0 if parent is None else parent.depth + 1
+DEPTH_LIMIT = 3        # Depth Limit (Recommended max. 5)
+MEMORY_ALERT = 10e+9   # 1 GB
 
+def elaborate(queue):
+    expanded_list = []          # List of already expanded nodes
+    expanded = set()            # Used to avoid re-iteration of the list while checking if a node was already been expanded. In addition, expanded list performs a check
+                                # also over the parent node, while expanded takes into account only the cube
 
-def execute_function_set(node):
-    new_nodes = set()
-    boolean_pairs = list(itertools.product([False, True], repeat=2))
-    futures = []
+    while queue:                                             
+            current = queue.popleft()                        # First element in the queue
 
-    #threading executor
-    with ThreadPoolExecutor(max_workers=12) as executor:
-        for p1, p2 in boolean_pairs:
+            if current.current not in expanded and current.depth < DEPTH_LIMIT: # Verifies if a node was already expanded of it it over the depth limit
 
-            futures.append(executor.submit(node.current.rotate_red_column, p1, p2))  # Rotazioni colonna
-            futures.append(executor.submit(node.current.rotate_red_row, p1, p2))     # Rotazioni riga
-            futures.append(executor.submit(node.current.rotate_face, p1, p2))        # Rotazioni faccia
-            
-        #esecuzione funzioni
-        for future in as_completed(futures):
-            result = future.result()                # Qui otteniamo il nodo ruotato
-            new_node = cube_node(result, node)
-            new_nodes.add(new_node)
+                size = asizeof.asizeof(expanded_list)/(MEMORY_ALERT) # Just an alert if the elaboration is taking too much memory
 
-    return new_nodes
+                print(f"{"!!! Dimensione coda: {size} > 1 GB !!! " if size > 1 \
+                         else "" } Nodo aggiunto agli espansi n.{len(expanded_list)} - Nodi in coda: {len(queue)} - Profondità: {current.depth}")
 
-def elaborate(queue, debug=False):
-    expanded_list = []          # Nodi già espansi (nodi interni all'albero di ricerca)
-    visited = set()             # Nodi visitati (nodi interni + nodi foglia)
-    blacklist = set()
-    target_iteration = 0
-    first_time = True
-    while queue:                                              # Valutazione che la coda non sia vuota
-            current = queue.popleft()                         # Estrazione del primo elemento in coda (nel bfs, il nodo più superficiale)
-            #int(f"Lunghezza coda: {len(queue)}")
-            if current not in expanded_list and current.depth < 5:
-                print(f"Nodo aggiunto agli espansi n.{len(expanded_list)} - Nodi in coda: {len(queue)} - Profondità: {current.depth}")
-                if (first_time): target_iteration+=1
-                expanded_list.append(current)
+                expanded_list.append(current)   # Adds the current node to the expanded list
+                expanded.add(current.current)   # Adds the current cube to the expanded set
+                
                 if current.current == rb.target:
-                    return expanded_list, len(expanded_list)
-                new_nodes = execute_function_set(current)
+                    return expanded_list
+                
+                new_nodes = execute_function_set(current)       # Execute the function set to obtain all the possible nodes
 
                 for node in new_nodes:
-                    queue.appendleft(node)
-                    #visited.add(node.current)
-                
-                
-                
-                
-            if rb.target in visited and debug: 
-                print(f"Target individuato in lista - Espansione nodo: {target_iteration}")
-                first_time = False
-    raise Exception("Target non trovato")
+                    queue.appendleft(node)  # Adds the new node as the first in the queue
+
+    return None # Return None a target is not found.
+
 
 def main():
 
-    faces_data = [
-        rb.face(rb.create_matrix(Y,B,Y,Y,R,Y,O,B,O)), # 0: Red
-        rb.face(rb.create_matrix(G,G,R,B,G,R,G,Y,Y)), # 1: Green
-        rb.face(rb.create_matrix(G,Y,G,G,Y,G,W,O,O)), # 2: Yellow
-        rb.face(rb.create_matrix(O,O,B,O,B,G,W,W,B)), # 3: Blue
-        rb.face(rb.create_matrix(Y,R,R,R,W,R,B,W,B)), # 4: White
-        rb.face(rb.create_matrix(W,W,R,O,O,O,W,W,R))  # 5: Orange
-    ]
-
     start_time = time.time()
     
-
-    my_cube = rb.create_target()
+    # List of operations to scramble the cube
+    my_cube = rb.cube.create_target()
     my_cube = my_cube.rotate_red_column(False, True)
-    my_cube = my_cube.rotate_red_row(False, True)
-    my_cube = my_cube.rotate_red_column(False, False)
-    #12my_cube = my_cube.rotate_face(False, False)
-    my_cube = my_cube.rotate_red_column(False, False)
-    #my_cube = my_cube.rotate_red_row(False, False)
-    #my_cube = my_cube.rotate_red_column(True, False)
-    #my_cube = my_cube.rotate_red_column(False, True)
-    #my_cube = my_cube.rotate_face(True, False)
-    rb.print_cube_state(my_cube, "Nodo root")
-    debug = True
-    
-    #if debug: return
 
-    root = cube_node(my_cube, None)
+
+    root = cube_node(my_cube, None) # Defines the root node as the scrambled configuration and None as a parent
+
 
     iteration = 0
     queue = deque([root])
 
-    try:    
-        expanded_list, iteration = elaborate(queue, debug)
-    except:
-        print("Target non trovato")
-        return
-    
+    expanded_list = elaborate(queue)
+
     elab_time = time.time()
+    print("-"*30 )
 
 
-    if debug: print(f"Lista nodi espansi: n. iterazioni: {iteration}")
-    #if debug:
-        #for node in expanded_list :
-            #rb.print_cube_state(node.current, "")
-    print("-"*60 )
-    print(f"Percorso effettuato")
-    path = []
-    current_node = expanded_list.pop()
-    while current_node is not None:
-        #rb.print_cube_state(current_node.current, "")
-        path.append(current_node.current)
-        current_node = current_node.parent
+    if expanded_list is None:
+        print("Target non trovato")
+    else:
+        iteration = len(expanded_list)
+        print(f"Percorso effettuato")
+        path = []
+        current_node = expanded_list.pop()
+        while current_node is not None:
+
+            path.append(current_node.current)
+            current_node = current_node.parent
     
-    for cube in path[::-1]:
-        index = path[::-1].index(cube)
-        rb.print_cube_state(cube, f"Nodo {"root" if index == 0 else f"n°{index}"}")
-                            
+        for cube in path[::-1]:
+            index = path[::-1].index(cube)
+            cube.print(f"Nodo {"root" if index == 0 else f"n°{index}"}")
+
+    print("-"*30 )                       
     print(f"Tempo di elaborazione: {(elab_time-start_time)}. s --- N° nodi espansi: {iteration}")
     print("-"*30 )
     print(f"Consumo memoria")
-    print(f"Nodi espansi: {asizeof.asizeof(expanded_list)/1000} KB --- Coda rimanente: {asizeof.asizeof(queue)/1000} KB")
+    print(f"Nodi espansi: {asizeof.asizeof(expanded_list)/1000} KB --- Coda rimanente: {asizeof.asizeof(queue)/1000} KB - Lunghezza coda: {len(queue)}")
 
 if __name__=="__main__":
     main()
