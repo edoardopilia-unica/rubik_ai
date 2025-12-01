@@ -392,16 +392,14 @@ class cube_node:
 
     def get_face_distance(self, current_face_color, sticker_color):
         """
-        Calcola la distanza minima di uno sticker dalla sua faccia target.
-        0: Lo sticker è sulla faccia giusta.
-        2: Lo sticker è sulla faccia opposta.
-        1: Lo sticker è su una faccia laterale.
+        Returns the minimum distance between a sticker and its face.
+        0: Correct face
+        2: Opposite face
+        1: Lateral face
         """
         if current_face_color == sticker_color:
             return 0
         
-        # Mappa delle facce opposte (adatta in base ai tuoi colori/costanti)
-        # Esempio standard: White<->Yellow, Green<->Blue, Red<->Orange
         opposites = {
             W: Y, 
             Y: W,
@@ -411,35 +409,26 @@ class cube_node:
             O: R
         }
         
-        # Se è il colore opposto, dista 2 mosse (es. da Bianco a Giallo)
         if opposites.get(current_face_color) == sticker_color:
             return 2
-        
-        # Altrimenti è su una faccia laterale, dista 1 mossa
+
         return 1
 
     def cube_heuristic(self):
         """
-        Calcola la Distanza di Manhattan totale degli sticker diviso 8.
-        Questa è un'euristica ammissibile e consistente.
+        Returns the Manhattan Distance / 8.
         """
         total_distance = 0
         
         for face in self.current.faces():
             current_face_color = face.color
             
-            # Itera su tutti gli sticker della matrice della faccia
             for row in face.matrix:
                 for sticker_color in row:
-                    # Salta i centri (che non si muovono) se necessario, 
-                    # ma per semplicità calcoliamo tutto.
                     
                     dist = self.get_face_distance(current_face_color, sticker_color)
                     total_distance += dist
         
-        # Dividiamo per 8 perché una singola rotazione cambia la posizione
-        # di 8 sticker (i centri non contano, 12 sticker si muovono ma in gruppi).
-        # Usare 8 garantisce l'ammissibilità (non sovrastimare mai il costo).
         return total_distance / 8
 
     def __lt__(self, other):
@@ -448,34 +437,22 @@ class cube_node:
 
 
 # Function set for node expansion
-from concurrent.futures import ThreadPoolExecutor, as_completed
-import itertools
-
 def execute_function_set(node):
     new_nodes = set()
     current_cube = node.current
-    
-    # Definizione esplicita delle mosse per evitare ridondanze e itertools
-    # Formato: (funzione, backward, selector, double)
-    # Selector: True/False a seconda di quale riga/colonna/faccia muovere
+
     
     moves = []
     
-    # Per ogni tipo di movimento (Colonna, Riga, Faccia)
-    # Generiamo: Orario, Antiorario, Doppio
-    
-    # -- COLONNE (Red Column) --
-    # Parametri: backward, right (True=Right/Blue, False=Left/Green), double
+
     moves.append((current_cube.rotate_red_column, False, True, False))  # R
     moves.append((current_cube.rotate_red_column, True,  True, False))  # R'
-    moves.append((current_cube.rotate_red_column, False, True, True))   # R2 (Direzione irrilevante)
+    moves.append((current_cube.rotate_red_column, False, True, True))   # R2
     
     moves.append((current_cube.rotate_red_column, False, False, False)) # L
     moves.append((current_cube.rotate_red_column, True,  False, False)) # L'
     moves.append((current_cube.rotate_red_column, False, False, True))  # L2
 
-    # -- RIGHE (Red Row) --
-    # Parametri: backward, up (True=Up/White, False=Down/Yellow), double
     moves.append((current_cube.rotate_red_row, False, True, False))   # U
     moves.append((current_cube.rotate_red_row, True,  True, False))   # U'
     moves.append((current_cube.rotate_red_row, False, True, True))    # U2
@@ -484,8 +461,6 @@ def execute_function_set(node):
     moves.append((current_cube.rotate_red_row, True,  False, False))  # D'
     moves.append((current_cube.rotate_red_row, False, False, True))   # D2
 
-    # -- FACCE (Face) --
-    # Parametri: backward, red (True=Front/Red, False=Back/Orange), double
     moves.append((current_cube.rotate_face, False, True, False))    # F
     moves.append((current_cube.rotate_face, True,  True, False))    # F'
     moves.append((current_cube.rotate_face, False, True, True))     # F2
@@ -494,14 +469,10 @@ def execute_function_set(node):
     moves.append((current_cube.rotate_face, True,  False, False))   # B'
     moves.append((current_cube.rotate_face, False, False, True))    # B2
 
-    # Esecuzione sequenziale (più veloce dei thread in Python per questo task)
     for action, p1, p2, p3 in moves:
-        # Esegui la rotazione
-        # Nota: La funzione rotate_* deve restituire un NUOVO cubo (come già fa il tuo codice)
+
         new_cube_state = action(p1, p2, p3)
         
-        # Evita di tornare allo stato del genitore (ottimizzazione semplice)
-        # Se il genitore esiste e il nuovo stato è uguale al nonno, lo scartiamo
         if node.parent and new_cube_state == node.parent.current:
             continue
 
