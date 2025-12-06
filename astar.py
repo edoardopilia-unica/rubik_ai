@@ -41,7 +41,7 @@ def elaborate(queue):
                         heapq.heappush(queue, node) # Adds the new node in the queue, ordered by the the heuristic + length
                         visited.add(node.current)
             
-    return expanded_list # Return None a target is not found. A* is complete and optimal, if this happens most probably the configuration of the cube is not valid.
+    return None # Return None a target is not found. A* is complete and optimal, if this happens most probably the configuration of the cube is not valid.
 
 
 def main():
