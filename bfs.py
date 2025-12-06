@@ -12,13 +12,13 @@ def elaborate(queue):
                                 # also over the parent node, while expanded takes into account only the cube.
 
     visited = set()             # Used to avoid to re-add elements in the queue.
-
+    size = 0
     while queue:                                              # Valutazione che la coda non sia vuota
             current = queue.popleft()                         # Estrazione del primo elemento in coda (nel bfs, il nodo più superficiale)
 
             if current not in expanded:
 
-                size = asizeof.asizeof(expanded_list)/(MEMORY_ALERT) # Just an alert if the elaboration is taking too much memory
+                size += asizeof.asizeof(current)/MEMORY_ALERT             # Just an alert if the elaboration is taking too much memory
 
                 print(f"{"!!! Dimensione coda: {size} > 1 GB !!! " if size > 1 \
                          else "" } Nodo aggiunto agli espansi n.{len(expanded_list)} - Nodi in coda: {len(queue)}")
@@ -46,8 +46,10 @@ def main():
     
     # List of operations to scramble the cube
     my_cube = rb.cube.create_target()
-    my_cube = my_cube.rotate_red_column(False, True)
-
+    my_cube = my_cube.rotate_red_row(False, True, False)     # Riga alta
+    my_cube = my_cube.rotate_red_column(True, True, False)   # Colonna destra
+    my_cube = my_cube.rotate_red_row(False, True, False)     # Riga alta
+    my_cube = my_cube.rotate_red_column(True, True, True)   # Colonna destra
 
     root = cube_node(my_cube, None) # Defines the root node as the scrambled configuration and None as a parent
 

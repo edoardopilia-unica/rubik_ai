@@ -15,13 +15,14 @@ def elaborate(queue):
                                 # also over the parent node, while expanded takes into account only the cube.
 
     visited = set()             # Used to avoid to re-add elements in the queue.
+    size = 0
 
     while queue:                                              
             current = heapq.heappop(queue)                      # First element in the queue
 
             if current.current not in expanded and current.depth < DEPTH_LIMIT: # Verifies if a node was already expanded of it it over the depth limit
 
-                size = asizeof.asizeof(expanded_list)/MEMORY_ALERT             # Just an alert if the elaboration is taking too much memory
+                size += asizeof.asizeof(current)/MEMORY_ALERT             # Just an alert if the elaboration is taking too much memory
 
                 print(f"{"!!! Dimensione coda: {size} > 1 GB !!! " if size > 1 \
                          else "" } Nodo aggiunto agli espansi n.{len(expanded_list)} - Nodi in coda: {len(queue)} - Profondità: {current.depth\
@@ -40,7 +41,7 @@ def elaborate(queue):
                         heapq.heappush(queue, node) # Adds the new node in the queue, ordered by the the heuristic + length
                         visited.add(node.current)
             
-    return None # Return None a target is not found. A* is complete and optimal, if this happens most probably the configuration of the cube is not valid.
+    return expanded_list # Return None a target is not found. A* is complete and optimal, if this happens most probably the configuration of the cube is not valid.
 
 
 def main():
@@ -49,15 +50,15 @@ def main():
     
     # List of operations to scramble the cube
     my_cube = rb.cube.create_target()
-
     my_cube = my_cube.rotate_red_row(False, True, False)     # Riga alta
     my_cube = my_cube.rotate_red_column(True, True, False)   # Colonna destra
-    my_cube = my_cube.rotate_face(False, True, True)         # Faccia rossa (doppia)
-    my_cube = my_cube.rotate_red_row(True, False, False)     # Riga bassa
-    my_cube = my_cube.rotate_red_column(False, False, True)  # Colonna sinistra (doppia)
-    my_cube = my_cube.rotate_face(True, False, False)        # Faccia arancione
-    my_cube = my_cube.rotate_red_row(False, True, True)      # Riga alta (doppia)
-    my_cube = my_cube.rotate_red_column(True, True, False)   # Colonna destra
+    my_cube = my_cube.rotate_red_row(False, True, False)     # Riga alta
+    my_cube = my_cube.rotate_red_column(True, True, True)   # Colonna destra
+    my_cube = my_cube.rotate_red_row(False, False, False)     # Riga alta
+    my_cube = my_cube.rotate_red_column(False, True, False)   # Colonna destra
+    my_cube = my_cube.rotate_red_row(True, True, False)     # Riga alta
+    my_cube = my_cube.rotate_red_column(False, False, True)   # Colonna destra
+
 
     root = cube_node(my_cube, None)
 

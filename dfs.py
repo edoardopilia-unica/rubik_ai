@@ -4,20 +4,20 @@ from rubik_ai import cube_node, execute_function_set
 from pympler import asizeof
 from collections import deque
 
-DEPTH_LIMIT = 3        # Depth Limit (Recommended max. 5)
+DEPTH_LIMIT = 3      # Depth Limit (Recommended max. 5)
 MEMORY_ALERT = 10e+9   # 1 GB
 
 def elaborate(queue):
     expanded_list = []          # List of already expanded nodes
     expanded = set()            # Used to avoid re-iteration of the list while checking if a node was already been expanded. In addition, expanded list performs a check
                                 # also over the parent node, while expanded takes into account only the cube
-
+    size = 0
     while queue:                                             
             current = queue.popleft()                        # First element in the queue
 
             if current.current not in expanded and current.depth < DEPTH_LIMIT: # Verifies if a node was already expanded of it it over the depth limit
 
-                size = asizeof.asizeof(expanded_list)/(MEMORY_ALERT) # Just an alert if the elaboration is taking too much memory
+                size += asizeof.asizeof(current)/(MEMORY_ALERT) # Just an alert if the elaboration is taking too much memory
 
                 print(f"{"!!! Dimensione coda: {size} > 1 GB !!! " if size > 1 \
                          else "" } Nodo aggiunto agli espansi n.{len(expanded_list)} - Nodi in coda: {len(queue)} - Profondità: {current.depth}")
@@ -42,8 +42,10 @@ def main():
     
     # List of operations to scramble the cube
     my_cube = rb.cube.create_target()
-    my_cube = my_cube.rotate_red_column(False, True)
-
+    my_cube = my_cube.rotate_red_row(False, True, False)     # Riga alta
+    my_cube = my_cube.rotate_red_column(True, True, False)   # Colonna destra
+    #my_cube = my_cube.rotate_face(False, True, True)         # Faccia rossa (doppia)
+    #my_cube = my_cube.rotate_red_row(True, False, False)     # Riga bassa
 
     root = cube_node(my_cube, None) # Defines the root node as the scrambled configuration and None as a parent
 
