@@ -16,7 +16,7 @@ def elaborate(queue):
     while queue:                                              # Valutazione che la coda non sia vuota
             current = queue.popleft()                         # Estrazione del primo elemento in coda (nel bfs, il nodo più superficiale)
 
-            if current not in expanded:
+            if current.current not in expanded:
 
                 size += asizeof.asizeof(current)/MEMORY_ALERT             # Just an alert if the elaboration is taking too much memory
 
