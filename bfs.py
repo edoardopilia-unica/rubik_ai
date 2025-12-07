@@ -7,7 +7,7 @@ from collections import deque
 MEMORY_ALERT = 10e+9    # 1 GB
 
 def elaborate(queue):
-    expanded_list = []          # List of expanded nodes
+    #expanded_list = []          # List of expanded nodes
     expanded = set()            # Used to avoid re-iteration of the list while checking if a node was already been expanded. In addition, expanded list performs a check
                                 # also over the parent node, while expanded takes into account only the cube.
 
@@ -20,14 +20,14 @@ def elaborate(queue):
 
                 size += asizeof.asizeof(current)/MEMORY_ALERT             # Just an alert if the elaboration is taking too much memory
 
-                print(f"{"!!! Dimensione coda: {size} > 1 GB !!! " if size > 1 \
-                         else "" } Nodo aggiunto agli espansi n.{len(expanded_list)} - Nodi in coda: {len(queue)}")
+                print(f"Nodo aggiunto agli espansi n.{len(expanded)} - Nodi in coda: {len(queue)} - Profondità: {current.depth\
+                            } - Euristica: {current.cube_heuristic()}")
 
-                expanded_list.append(current)
+                #expanded_list.append(current)
                 expanded.add(current.current)
                 
                 if current.current == rb.target:
-                    return expanded_list
+                    return current, len(expanded)
                 
                 new_nodes = execute_function_set(current)
 
@@ -57,19 +57,19 @@ def main():
     iteration = 0
     queue = deque([root])              # Inizializzazione della coda col nodo radice
 
-    expanded_list = elaborate(queue)
+    current_node, iteration = elaborate(queue)
 
     elab_time = time.time()
     print("-"*30 )
 
 
-    if expanded_list is None:
+    if current_node is None:
         print("Target non trovato")
     else:
-        iteration = len(expanded_list)
+        #iteration = len(expanded_list)
         print(f"Percorso effettuato")
         path = []
-        current_node = expanded_list.pop()
+        #current_node = expanded_list.pop()
         while current_node is not None:
 
             path.append(current_node.current)
@@ -83,7 +83,7 @@ def main():
     print(f"Tempo di elaborazione: {(elab_time-start_time)}. s --- N° nodi espansi: {iteration}")
     print("-"*30 )
     print(f"Consumo memoria")
-    print(f"Nodi espansi: {asizeof.asizeof(expanded_list)/1000} KB --- Coda rimanente: {asizeof.asizeof(queue)/1000} KB - Lunghezza coda: {len(queue)}")
+    print(f"Nodi espansi: {iteration} --- Dimensione Coda: {asizeof.asizeof(queue)/1000} KB - Lunghezza coda: {len(queue)}")
 
 if __name__=="__main__":
     main()

@@ -166,7 +166,7 @@ class cube:
         :param double: specifies if the rotation should be done twice
         '''
 
-        return_cube = copy.deepcopy(self)
+        return_cube = fast_copy(self)
 
         index =  2 if right else 0
         op_idx = 0 if right else 2       # opposite index for orange face
@@ -202,7 +202,7 @@ class cube:
         :param double: specifies if the rotation should be done twice
         '''
 
-        return_cube = copy.deepcopy(self)
+        return_cube = fast_copy(self)
 
         index = 0 if up else 2
         
@@ -238,7 +238,7 @@ class cube:
         :param red: specifies which face is to be rotated (red/true or orange/false)
         :param double: specifies if the rotation should be done twice
         '''       
-        return_cube = copy.deepcopy(self)
+        return_cube = fast_copy(self)
 
         index = 2 if red else 0
         op_idx = 0 if red else 2
@@ -371,6 +371,14 @@ class cube:
             face.complete_face(O)]
         )
     
+def fast_copy(self):
+    # Crea una copia manuale molto più veloce di deepcopy
+    new_faces = []
+    for f in self.faces():
+        # Copia la matrice 3x3 manualmente (list comprehension è veloce)
+        new_matrix = [row[:] for row in f.matrix]
+        new_faces.append(face(new_matrix))
+    return cube(new_faces)
 
 target = cube.create_target()
 
@@ -429,7 +437,7 @@ class cube_node:
                     dist = self.get_face_distance(current_face_color, sticker_color)
                     total_distance += dist
         
-        return total_distance / 8
+        return total_distance / 4
 
     def __lt__(self, other):
         return self.cube_heuristic()+self.depth < other.cube_heuristic()+other.depth
