@@ -11,7 +11,7 @@ All of these are fully working, however some considerations have to be done:
 
 
 To test a configuration, it has to be written in main.py, using the following format:
-    my_cube = rb.cube.create_target()
-    my_cube = my_cube.rotate_red_column(backward:bool, right:bool, double:bool)
-    my_cube = my_cube.rotate_red_row(backward:bool, up:bool, double:bool)
-    my_cube = my_cube.rotate_face(backward:bool, red:bool, double:bool) (red=false will rotate the orange face)
+- my_cube = rb.cube.create_target()
+- my_cube = my_cube.rotate_red_column(backward:bool, right:bool, double:bool)
+- my_cube = my_cube.rotate_red_row(backward:bool, up:bool, double:bool)
+- my_cube = my_cube.rotate_face(backward:bool, red:bool, double:bool) (red=false will rotate the orange face)
