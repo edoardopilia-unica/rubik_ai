@@ -1,31 +1,29 @@
-import time
 import rubik_ai as rb
-from rubik_ai import cube_node, execute_function_set
-from pympler import asizeof
-from collections import deque
+from rubik_ai import execute_function_set
 
-DEPTH_LIMIT = 8    # Depth Limit (Recommended max. 5)
+DEPTH_LIMIT = 6    # Depth Limit (Recommended max. 6)
 
 
-def elaborate(queue):
-    expanded = set()            # Tracks already expanded states (cubes). Checking if an element is in the set has a linear time complexity.
+def elaborate(queue, depth_limit=DEPTH_LIMIT):
+    expanded = {}            # Tracks already expanded states (cubes). Checking if an element is in the set has a linear time complexity.
 
     while queue:                                             
-            current = queue.popleft()                        # First element in the queue
+            current = queue.pop()                        # First element in the queue
 
-            if current.current not in expanded: # Verifies if a node was already expanded.
-
+            if current.current in expanded and expanded[current.current] < current.depth: # Verifies if a node was already expanded.
+                continue
+            else:
                 print(f"Expanded node n.{len(expanded)} - Queued: {len(queue)} - Depth: {current.depth}")
 
-                expanded.add(current.current)   # Adds the current cube to the expanded set
+                expanded[current.current] = current.depth   # Adds the current cube to the expanded set
                                 
-                if current.depth < DEPTH_LIMIT:
+                if current.depth < depth_limit:
                     new_nodes = execute_function_set(current)       # Execute the function set to obtain all the possible nodes
                     for node in new_nodes:
-                        queue.appendleft(node)  # Adds the new node a the beginning of the queue, it will be expanded as first.
+                        queue.append(node)  # Adds the new node a the beginning of the queue, it will be expanded as first.
 
-                if current.current == rb.target:
-                    return current, len(expanded)
+            if current.current == rb.target:
+                return current, len(expanded)
                 
 
     return None, len(expanded) # Return None a target is not found.
