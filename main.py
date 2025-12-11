@@ -64,8 +64,6 @@ def main():
     print(f"N° expanded node: {iteration} --- Queue size: {asizeof.asizeof(queue)/1000} KB - Queue length: {len(queue)}")
 
 
-    
-
 def execute_algorithm(algorithm, root):
 
     if algorithm == 'bfs':
