@@ -372,10 +372,8 @@ class cube:
         )
     
 def fast_copy(self):
-    # Crea una copia manuale molto più veloce di deepcopy
     new_faces = []
     for f in self.faces():
-        # Copia la matrice 3x3 manualmente (list comprehension è veloce)
         new_matrix = [row[:] for row in f.matrix]
         new_faces.append(face(new_matrix))
     return cube(new_faces)
@@ -437,9 +435,9 @@ class cube_node:
                     dist = self.get_face_distance(current_face_color, sticker_color)
                     total_distance += dist
         
-        return total_distance / 4
+        return total_distance / 8
 
-    def __lt__(self, other):
+    def __lt__(self, other): #Needed for heapq.
         return self.cube_heuristic()+self.depth < other.cube_heuristic()+other.depth
     
 
