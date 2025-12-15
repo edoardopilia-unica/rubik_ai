@@ -24,7 +24,7 @@ Elapsed time: 0.019 s
 Memory Consumption:
 N° expanded node: 17 --- Queue length: 220
 --------------------------------------------------------------------------------------------------------------------------------------------------------------
-DFS (Limited at 5):
+DFS (Limited at 6):
 Path: 
 --- Root node ---
 Red (Front):    [['R', 'R', 'W'], ['R', 'R', 'W'], ['R', 'R', 'W']]

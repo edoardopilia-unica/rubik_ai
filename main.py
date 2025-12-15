@@ -10,13 +10,13 @@ from collections import deque
 def main():
 
 # Write the desired configuration below:
-# --- TEST 5 MOSSE - A (R U R' U' F) ---
+# --- TEST 5 MOSSE - C (F L D R B) ---
     my_cube = rb.cube.create_target()
-    my_cube = my_cube.rotate_red_column(False, True, False)  # R
-    my_cube = my_cube.rotate_red_row(False, True, False)     # U
-    my_cube = my_cube.rotate_red_column(True, True, False)   # R'
-    my_cube = my_cube.rotate_red_row(True, True, False)      # U'
     my_cube = my_cube.rotate_face(False, True, False)        # F
+    my_cube = my_cube.rotate_red_column(False, False, False) # L
+    my_cube = my_cube.rotate_red_row(False, False, False)    # D
+    my_cube = my_cube.rotate_red_column(False, True, False)  # R
+    my_cube = my_cube.rotate_face(False, False, False)       # B
 
     root = cube_node(my_cube, None) # Defines the root node as the scrambled configuration and None as a parent
     algorithms = input("Choose an algorithm: BFS (1), DFS (2), A* (3): ")
@@ -29,23 +29,21 @@ def main():
         if algorithms == '3':
             current_node, iteration, queue = execute_algorithm('astar', root)
     except Exception as err:
+        print("-"*30 )                       
+        print(f"Elapsed time: {round(elab_time-start_time, 3)} s")
+        print("-"*30 )
         print(f"Caught exception")
         print(f"Info: {err=}, {type(err)=}")
         print("Retrying...")
         main()
     except KeyboardInterrupt:
-        elab_time = time.time()
         print("-"*30 )
         print("Program interrupted by user")
         print("Goodbye")
         exit()
     finally:
         elab_time = time.time()
-        print("-"*30 )                       
-        print(f"Elapsed time: {round(elab_time-start_time, 3)} s")
-        print("-"*30 )
-
-
+    
 
 
     if current_node is None:
@@ -62,6 +60,9 @@ def main():
             index = path[::-1].index(cube)
             cube.print(f"{"Root node" if index == 0 else f"Node n°{index}"}")
 
+    print("-"*30 )                       
+    print(f"Elapsed time: {round(elab_time-start_time, 3)} s")
+    print("-"*30 )
     print(f"Memory Consumption: ")
     print(f"N° expanded node: {iteration} --- Queue length: {len(queue)}")
 
