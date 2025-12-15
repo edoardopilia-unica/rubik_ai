@@ -1,3 +1,6 @@
+# Rubik_AI - BFS v. 1.0
+# Authors: Edoardo Pilia & Alessia Congia
+
 import rubik_ai as rb
 from rubik_ai import execute_function_set
 
@@ -14,16 +17,16 @@ def elaborate(queue):
                 print(f"Expanded node n.{len(expanded)} - Queued: {len(queue)} - Depth: {current.depth}")
                 
                 expanded.add(current.current) # Adds the current cube to the expanded set
+                        
+                if current.current == rb.target: # Checks if current node is the target
+                    return current, len(expanded)
                 
                 new_nodes = execute_function_set(current)
 
                 for node in new_nodes:
                     if node.current not in visited: 
                         queue.append(node)                    # Nodes are inserted at the end of the queue
-                        visited.add(node.current)             
-                        
-                if current.current == rb.target: # Checks if current node is the target
-                    return current, len(expanded)
+                        visited.add(node.current)     
                 
     return None, len(expanded) # Return None a target is not found. BFS is complete, if this happens most probably the configuration of the cube is not valid.
 

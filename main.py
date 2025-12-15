@@ -1,3 +1,6 @@
+# Rubik_AI - Main v. 1.0
+# Authors: Edoardo Pilia & Alessia Congia
+
 import bfs
 import dfs
 import astar
@@ -10,13 +13,13 @@ from collections import deque
 def main():
 
 # Write the desired configuration below:
-# --- TEST 5 MOSSE - C (F L D R B) ---
+
     my_cube = rb.cube.create_target()
-    my_cube = my_cube.rotate_face(False, True, False)        # F
-    my_cube = my_cube.rotate_red_column(False, False, False) # L
-    my_cube = my_cube.rotate_red_row(False, False, False)    # D
-    my_cube = my_cube.rotate_red_column(False, True, False)  # R
-    my_cube = my_cube.rotate_face(False, False, False)       # B
+    #my_cube = my_cube.rotate_face(False, True, False)        # F
+    #my_cube = my_cube.rotate_red_column(False, False, False) # L
+    #my_cube = my_cube.rotate_red_row(False, False, False)    # D
+    #my_cube = my_cube.rotate_red_column(False, True, False)  # R
+    #my_cube = my_cube.rotate_face(False, False, False)       # B
 
     root = cube_node(my_cube, None) # Defines the root node as the scrambled configuration and None as a parent
     algorithms = input("Choose an algorithm: BFS (1), DFS (2), A* (3): ")

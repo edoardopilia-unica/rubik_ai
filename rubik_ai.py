@@ -1,5 +1,5 @@
-# rubik_ai v. 0.1
-# authors Edoardo Pilia & Alessia Congia
+# Rubik_AI - Library v. 1.0
+# Authors: Edoardo Pilia & Alessia Congia
 
 import copy
 

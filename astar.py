@@ -1,3 +1,6 @@
+# Rubik_AI - A* v. 1.0
+# Authors: Edoardo Pilia & Alessia Congia
+
 import heapq
 import rubik_ai as rb
 from rubik_ai import execute_function_set
@@ -7,7 +10,6 @@ DEPTH_LIMIT = 21        # Depth Limit (It is demonstrated that every cube config
 def elaborate(queue):    
 
     expanded = set()            # Tracks already expanded states (cubes). Checking if an element is in the set has a linear time complexity.
-    visited = set()             # Used to avoid to re-add a cube in the queue without iterating a list.
 
     while queue:                                              
             current = heapq.heappop(queue)                      # First element in the queue. Elements are ordered by the heuristic.
@@ -19,14 +21,13 @@ def elaborate(queue):
                 
                 expanded.add(current.current)   # Adds the current cube to the expanded set
 
+                if current.current == rb.target:
+                    return current, len(expanded)        # Returns the list of expanded nodes
+
                 if current.depth < DEPTH_LIMIT: # Checks if an element is over the limit before expanding it.
                     new_nodes = execute_function_set(current)       # Execute the function set to obtain all the possible nodes
                     for node in new_nodes:
                         heapq.heappush(queue, node) # Adds the new node in the queue, ordered by heuristic + length.
-                        visited.add(node.current)
-
-                if current.current == rb.target:
-                    return current, len(expanded)        # Returns the list of expanded nodes
             
                         
     return None, len(expanded) # Return None a target is not found. A* is complete and optimal, if this happens most probably the configuration of the cube is not valid.
