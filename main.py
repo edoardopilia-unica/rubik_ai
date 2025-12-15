@@ -43,8 +43,6 @@ def main():
         exit()
     finally:
         elab_time = time.time()
-    
-
 
     if current_node is None:
         print("Target non found")
@@ -59,6 +57,7 @@ def main():
         for cube in path[::-1]:
             index = path[::-1].index(cube)
             cube.print(f"{"Root node" if index == 0 else f"Node n°{index}"}")
+
 
     print("-"*30 )                       
     print(f"Elapsed time: {round(elab_time-start_time, 3)} s")
