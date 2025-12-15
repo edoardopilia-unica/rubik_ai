@@ -10,7 +10,7 @@ def elaborate(queue, depth_limit=DEPTH_LIMIT):
     while queue:                                             
             current = queue.pop()                        # First element in the queue
 
-            if current.current in expanded and expanded[current.current] < current.depth: # Verifies if a node was already expanded.
+            if current.current in expanded and expanded[current.current] < current.depth: # Verifies if a node was already expanded at a minor depth
                 continue
             else:
                 print(f"Expanded node n.{len(expanded)} - Queued: {len(queue)} - Depth: {current.depth}")
