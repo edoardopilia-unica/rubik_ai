@@ -1,7 +1,7 @@
 # Rubik_ai V. 1.0
 This program is designed to solve the rubik's cube using breadth-first search, depth-first search (which are uninformed) and A* search.
-DFS is limited to 8 nodes of depth for testing purposes.
-A* is designed using manhattan distance as heuristic.
+DFS is limited to 6 nodes of depth for testing purposes.
+A* is designed using Manhattan distance as heuristic.
 
 
 All of these are fully working, however some considerations have to be done:
