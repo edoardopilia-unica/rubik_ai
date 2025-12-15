@@ -4,17 +4,19 @@ import astar
 import rubik_ai as rb
 from rubik_ai import cube_node
 import time
-from pympler import asizeof
 from collections import deque
 
 
 def main():
 
 # Write the desired configuration below:
-# --- TEST 2 MOSSE (R U) ---
+# --- TEST 5 MOSSE - A (R U R' U' F) ---
     my_cube = rb.cube.create_target()
     my_cube = my_cube.rotate_red_column(False, True, False)  # R
     my_cube = my_cube.rotate_red_row(False, True, False)     # U
+    my_cube = my_cube.rotate_red_column(True, True, False)   # R'
+    my_cube = my_cube.rotate_red_row(True, True, False)      # U'
+    my_cube = my_cube.rotate_face(False, True, False)        # F
 
     root = cube_node(my_cube, None) # Defines the root node as the scrambled configuration and None as a parent
     algorithms = input("Choose an algorithm: BFS (1), DFS (2), A* (3): ")
@@ -35,21 +37,24 @@ def main():
         elab_time = time.time()
         print("-"*30 )
         print("Program interrupted by user")
-        print(f"Elapsed time: {(elab_time-start_time)} s")
         print("Goodbye")
         exit()
+    finally:
+        elab_time = time.time()
+        print("-"*30 )                       
+        print(f"Elapsed time: {round(elab_time-start_time, 3)} s")
+        print("-"*30 )
 
 
-    elab_time = time.time()
-    print("-"*30 )
+
 
     if current_node is None:
         print("Target non found")
     else:
         print(f"Path: ")
         path = []
-        while current_node is not None:
 
+        while current_node is not None:
             path.append(current_node.current)
             current_node = current_node.parent
     
@@ -57,11 +62,8 @@ def main():
             index = path[::-1].index(cube)
             cube.print(f"{"Root node" if index == 0 else f"Node n°{index}"}")
 
-    print("-"*30 )                       
-    print(f"Elapsed time: {round(elab_time-start_time, 3)} s")
-    print("-"*30 )
     print(f"Memory Consumption: ")
-    print(f"N° expanded node: {iteration} --- Queue size: {asizeof.asizeof(queue)/1000} KB - Queue length: {len(queue)}")
+    print(f"N° expanded node: {iteration} --- Queue length: {len(queue)}")
 
 
 def execute_algorithm(algorithm, root):

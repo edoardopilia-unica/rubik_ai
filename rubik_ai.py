@@ -2,9 +2,8 @@
 # authors Edoardo Pilia & Alessia Congia
 
 import copy
-import heapq
 
-
+# Constants for colors (used to avoid to write 'X' for every declaration)
 G = 'G'   # G as 'green'
 Y = 'Y'   # Y as 'yellow'
 W = 'W'   # W as 'white'
