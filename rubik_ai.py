@@ -393,7 +393,7 @@ class cube_node:
         self.current = current                   
         self.parent = parent                    
         self.depth = 0 if parent is None else parent.depth + 1
-        self.function = self.cube_heuristic() + self.depth if self.cube_heuristic() > 0  else 0
+        self.function = self.cube_heuristic() + self.depth
 
     def get_face_distance(self, current_face_color, sticker_color):
         """
